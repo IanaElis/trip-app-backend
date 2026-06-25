@@ -1,0 +1,20 @@
+package travel.itinerary.dto.response;
+
+import travel.map.dto.LocationDto;
+
+import java.time.Instant;
+
+public record FullTransportDto(
+        Long id,
+        Long tripId,
+        Instant startDateTime,
+        Instant endDateTime,
+        String notes,
+        String companyName,
+        String confirmationNumber,
+        String transportType,
+        LocationDto departureLocation,
+        LocationDto arrivalLocation,
+        String transportId
+) {
+}
