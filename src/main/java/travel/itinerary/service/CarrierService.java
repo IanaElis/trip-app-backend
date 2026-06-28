@@ -11,7 +11,7 @@ import java.util.List;
 public interface CarrierService {
     //List<CarrierSuggestionDto> autocomplete(...);
 
-    Company createCompany(String name, TransportType transportType);
+    Company getOrCreateCompany(String name, TransportType transportType);
     AirlineDto createAirline(AirlineDto airline);
 
     CompanyDto updateCompany(CompanyDto company);
@@ -20,7 +20,12 @@ public interface CarrierService {
     AirlineDto getAirlineByIataCode(String iataCode);
     Airline getAirline(String iataCode);
     List<AirlineDto> getAllAirlines();
-    CompanyDto getCompanyById(Long id);
+    CompanyDto getCompanyDtoById(Long id);
+
+    Company getCompany(Long id);
+
+    Company getCompanyByName(String companyName);
+
     List<String> getAllCompaniesByType(String type);
     List<CompanyDto> getAllCompanies();
 

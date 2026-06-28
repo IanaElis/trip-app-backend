@@ -18,8 +18,10 @@ public interface ActivityMapper {
     @Mapping(target = "trip", ignore = true)
     Activity toEntity(CreateActivityRequest dto);
 
+    @Mapping(target = "trip", ignore = true)
     void updateEntity(CreateActivityRequest dto, @MappingTarget Activity entity);
 
+    @Mapping(target = "tripId", source = "trip.id")
     FullActivityDto toDto(Activity dto);
 
 }

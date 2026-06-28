@@ -86,5 +86,16 @@ public class Trip {
         this.endDate = endDate;
     }
 
-
+    @Override
+    public String toString() {
+        return "Trip{" +
+                "id=" + id +
+                ", userId=" + userId +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", destination=" + destination +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                '}';
+    }
 }

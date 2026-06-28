@@ -30,9 +30,15 @@ public class ItineraryController {
     @Path("/accommodation/create")
     public Response createAccommodation(@PathParam("trip_id") Long tripId,
             CreateAccommodationRequest dto){
-        TimelineItemDto created = itineraryService
-                .addAccommodation(userId, dto);
-        return Response.seeOther(URI.create("/trips/" + tripId)).build();
+        TimelineItemDto created = null;
+        try{
+        created = itineraryService
+                .addAccommodation(userId, tripId, dto);}
+        catch(Exception e){
+            e.printStackTrace();
+        }
+        return Response.ok(created).build();
+                //Response.seeOther(URI.create("/trips/" + tripId)).build();
     }
 
     @POST
@@ -40,7 +46,7 @@ public class ItineraryController {
     public Response createActivity(@PathParam("trip_id") Long tripId,
                                         CreateActivityRequest dto){
         TimelineItemDto created = itineraryService
-                .addActivity(userId, dto);
+                .addActivity(userId, tripId, dto);
         return Response.seeOther(URI.create("/trips/" + tripId)).build();
     }
 
@@ -49,7 +55,7 @@ public class ItineraryController {
     public Response createTransport(@PathParam("trip_id") Long tripId,
                                         CreateTransportRequest dto){
         TimelineItemDto created = itineraryService
-                .addTransport(userId, dto);
+                .addTransport(userId, tripId, dto);
         return Response.seeOther(URI.create("/trips/" + tripId)).build();
     }
 
@@ -58,7 +64,7 @@ public class ItineraryController {
     public Response createFlight(@PathParam("trip_id") Long tripId,
                                         CreateFlightRequest dto){
         TimelineItemDto created = itineraryService
-                .addFlight(userId, dto);
+                .addFlight(userId, tripId, dto);
         return Response.seeOther(URI.create("/trips/" + tripId)).build();
     }
 

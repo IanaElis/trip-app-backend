@@ -26,10 +26,12 @@ public class TripController {
     private static final Long userId = 1L;
 
     @POST
+    @Path("/")
     public Response createTrip(CreateTripRequest createTripRequest) {
-        ShortTripDto tripCreated = tripService.createTrip(createTripRequest);
+        ShortTripDto tripCreated = tripService.createTrip(userId, createTripRequest);
         return Response.seeOther(URI
-                .create("/trip/" + tripCreated.id())).build();
+               .create("/trips/" + tripCreated.id())).build();
+        //return Response.status(Response.Status.CREATED).entity(tripCreated).build();
     }
 
     @PUT
@@ -49,7 +51,12 @@ public class TripController {
     @GET
     @Path("/{trip_id}")
     public Response getTrip(@PathParam("trip_id") Long tripId) {
-        FullItineraryDto result = itineraryService.getItinerary(userId, tripId);
+        FullItineraryDto result = null;
+        try {
+            result = itineraryService.getItinerary(userId, tripId);
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
         return Response.ok(result).build();
     }
 

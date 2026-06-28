@@ -4,7 +4,6 @@ package travel.itinerary.dto.request;
 import java.time.Instant;
 
 public record CreateFlightRequest(
-        Long tripId,
         Instant startDateTime,
         Instant endDateTime,
         String notes,

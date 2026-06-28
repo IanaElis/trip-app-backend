@@ -15,10 +15,13 @@ import java.util.List;
 public interface TripMapper {
 
     @Mapping(target = "destination", ignore = true)
+    @Mapping(target = "userId", ignore = true)
     Trip toTripEntity(CreateTripRequest dto);
 
+    @Mapping(target = "userId", ignore = true)
     void updateTrip(CreateTripRequest dto, @MappingTarget Trip trip);
 
+    @Mapping(target = "destination.formattedAddress", source = "destination.address")
     travel.itinerary.dto.timeline.TripDto toTripTimelineDto(Trip trip);
     ShortTripDto toTripDto(Trip trip);
 

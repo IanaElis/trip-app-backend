@@ -24,11 +24,21 @@ public interface TransportMapper {
     @Mapping(target = "trip", ignore = true)
     Transport toEntity(CreateTransportRequest dto);
 
+    @Mapping(target = "trip", ignore = true)
+    @Mapping(target = "company", ignore = true)
     void updateEntity(CreateTransportRequest dto, @MappingTarget Transport entity);
 
 //    @Mapping(target= "itemType", expression = "TRANSPORT")
 //    @Mapping(target = "details", expression = "java(toTransportDetails(entity))")
 //    TimelineItemDto toTimelineDto(Transport entity);
+    @Mapping(target = "tripId", source = "trip.id")
+    @Mapping(target = "companyName", source = "company.name")
+    @Mapping(target = "transportType", source = "type")
+    @Mapping(target = "transportId", source = "transportIdentifier")
     FullTransportDto toTransportDto(Transport entity);
+
+    @Mapping(target = "companyName", source = "company.name")
+    @Mapping(target = "transportType", source = "type")
+    @Mapping(target = "transportId", source = "transportIdentifier")
     TransportDto toTransportDetails(Transport entity);
 }

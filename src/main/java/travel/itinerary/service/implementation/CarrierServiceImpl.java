@@ -30,18 +30,21 @@ class CarrierServiceImpl implements CarrierService {
 
     @Transactional
     @Override
-    public Company createCompany(String name, TransportType transportType) {
+    public Company getOrCreateCompany(String name, TransportType transportType) {
         Company company = companyRepository.findByName(name);
         if (company == null) {
             company = new Company();
+
+            company.setName(name);
+            CompanyType type;
+            switch(transportType){
+                case BUS -> type = CompanyType.BUS;
+                case CAR -> type = CompanyType.RENTAL;
+                case TRAIN -> type = CompanyType.RAIL;
+                default -> throw new IllegalArgumentException("Invalid transportType: " + transportType);
+            }
+            company.setType(type);
         }
-        if(transportType == TransportType.BUS)
-            company.setType(CompanyType.BUS);
-        else if(transportType == TransportType.CAR)
-            company.setType(CompanyType.RENTAL);
-        else if(transportType == TransportType.TRAIN)
-            company.setType(CompanyType.RAIL);
-        company.setName(name);
         return company;
     }
 
@@ -63,8 +66,8 @@ class CarrierServiceImpl implements CarrierService {
         if(dto.name() != null && !dto.name().equalsIgnoreCase(entity.getName())){
             entity.setName(dto.name());
         }
-        if(dto.companyType()!=null && dto.companyType() != entity.getType())
-            entity.setType(dto.companyType());
+        if(dto.type()!=null && dto.type() != entity.getType())
+            entity.setType(dto.type());
         return carrierMapper.toCompanyDto(entity);
     }
 
@@ -102,10 +105,25 @@ class CarrierServiceImpl implements CarrierService {
     }
 
     @Override
-    public CompanyDto getCompanyById(Long id) {
+    public CompanyDto getCompanyDtoById(Long id) {
         Company company = companyRepository.findByIdOptional(id)
                 .orElseThrow(() -> new NotFoundException("Company not found"));
         return carrierMapper.toCompanyDto(company);
+    }
+
+    @Override
+    public Company getCompany(Long id) {
+        return companyRepository.findByIdOptional(id)
+                .orElseThrow(() -> new NotFoundException("Company not found"));
+    }
+
+    @Override
+    public Company getCompanyByName(String companyName){
+        Company entity = companyRepository.findByName(companyName);
+        if(entity == null){
+            throw new NotFoundException("Company not found");
+        }
+        return entity;
     }
 
     @Override

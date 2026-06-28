@@ -26,9 +26,12 @@ class TripServiceImpl implements TripService {
 
     @Transactional
     @Override
-    public ShortTripDto createTrip(CreateTripRequest dto) {
+    public ShortTripDto createTrip(Long userId, CreateTripRequest dto) {
         Trip trip = tripMapper.toTripEntity(dto);
-        trip.setDestination(mapService.findOrCreate(dto.destination()));
+        trip.setUserId(userId);
+        trip.setDestination(mapService.findOrCreatePlace(dto.destination()));
+        System.out.println(trip);
+        tripRepository.persistAndFlush(trip);
         return tripMapper.toTripDto(trip);
     }
 

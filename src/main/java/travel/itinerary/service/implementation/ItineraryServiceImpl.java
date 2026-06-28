@@ -28,6 +28,7 @@ import travel.itinerary.service.TripService;
 import travel.map.service.MapService;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @ApplicationScoped
@@ -58,79 +59,110 @@ class ItineraryServiceImpl implements ItineraryService {
 
     @Transactional
     @Override
-    public TimelineItemDto addTransport(Long userId, CreateTransportRequest dto) {
+    public TimelineItemDto addTransport(Long userId, Long tripId,
+                                        CreateTransportRequest dto) {
         Transport transport = transportMapper.toEntity(dto);
 
-        transport.setTrip(tripService.getTripClassById(dto.tripId(), userId));
+        transport.setTrip(tripService.getTripClassById(userId, tripId));
 
         Company c = null;
         if(dto.companyId() == null) {
-            c = carrierService.createCompany(dto.companyName(), dto.type());
+            c = carrierService.getOrCreateCompany(dto.companyName(), dto.type());
         }
         transport.setCompany(c);
-        transport.setDepartureLocation(mapService.findOrCreate(dto.departureLocation()));
-        transport.setArrivalLocation(mapService.findOrCreate(dto.arrivalLocation()));
+        transport.setDepartureLocation(mapService.findOrCreatePlace(dto.departureLocation()));
+        transport.setArrivalLocation(mapService.findOrCreatePlace(dto.arrivalLocation()));
 
+        itineraryItemRepository.persist(transport);
         return timelineMapper.toTimelineItemDto(transport);
     }
 
     @Transactional
     @Override
-    public TimelineItemDto addFlight(Long userId, CreateFlightRequest dto) {
+    public TimelineItemDto addFlight(Long userId, Long tripId,
+                                     CreateFlightRequest dto) {
         Flight flight = flightMapper.toEntity(dto);
 
-        flight.setTrip(tripService.getTripClassById(dto.tripId(), userId));
+        flight.setTrip(tripService.getTripClassById(userId, tripId));
 
         flight.setAirline(carrierService.getAirline(dto.airlineIataCode()));
 
-        flight.setDepartureAirport(mapService.findByIataCode(dto.departureAirportIataCode()));
-        flight.setArrivalAirport(mapService.findByIataCode(dto.arrivalAirportIataCode()));
+        flight.setDepartureAirport(mapService.findAirportByIataCode(dto.departureAirportIataCode()));
+        flight.setArrivalAirport(mapService.findAirportByIataCode(dto.arrivalAirportIataCode()));
 
+        itineraryItemRepository.persist(flight);
         return timelineMapper.toTimelineItemDto(flight);
     }
 
     @Transactional
     @Override
-    public TimelineItemDto addAccommodation(Long userId, CreateAccommodationRequest dto) {
+    public TimelineItemDto addAccommodation(Long userId, Long tripId, CreateAccommodationRequest dto) {
         Accommodation accommodation = accommodationMapper.toEntity(dto);
 
-        accommodation.setTrip(tripService.getTripClassById(dto.tripId(), userId));
-        accommodation.setLocation(mapService.findOrCreate(dto.location()));
+        accommodation.setTrip(tripService.getTripClassById(userId, tripId));
+        accommodation.setLocation(mapService.findOrCreatePlace(dto.location()));
+
+        itineraryItemRepository.persist(accommodation);
 
         return timelineMapper.toTimelineItemDto(accommodation);
     }
 
     @Transactional
     @Override
-    public TimelineItemDto addActivity(Long userId, CreateActivityRequest dto) {
+    public TimelineItemDto addActivity(Long userId, Long tripId,
+                                       CreateActivityRequest dto) {
         Activity activity = activityMapper.toEntity(dto);
 
-        activity.setTrip(tripService.getTripClassById(dto.tripId(), userId));
-        activity.setLocation(mapService.findOrCreate(dto.location()));
+        activity.setTrip(tripService.getTripClassById(userId, tripId));
+        activity.setLocation(mapService.findOrCreatePlace(dto.location()));
 
+        itineraryItemRepository.persist(activity);
         return timelineMapper.toTimelineItemDto(activity);
     }
 
+    @Transactional
     @Override
     public TimelineItemDto updateTransport(Long id, CreateTransportRequest dto) {
         Transport entity = (Transport) itineraryItemRepository.findByIdOptional(id)
                 .orElseThrow(() -> new NotFoundException("Item not found"));
         //TODO: check update
         transportMapper.updateEntity(dto, entity);
+        if(dto.companyId() == null) {
+            if(dto.companyName() == null) {
+                throw new IllegalArgumentException("Company name is required");
+            }
+            Company company = carrierService
+                    .getOrCreateCompany(dto.companyName(), dto.type());
+            entity.setCompany(company);
+
+        }
+        else if(!dto.companyId().equals(id)) {
+            Company newCompany = carrierService.getCompany(dto.companyId());
+            if(newCompany != null) {
+                entity.setCompany(newCompany);
+            }
+        }
         System.out.println(entity.toString());
         return timelineMapper.toTimelineItemDto(entity);
     }
 
+    @Transactional
     @Override
     public TimelineItemDto updateFlight(Long id, CreateFlightRequest dto) {
         Flight entity = (Flight) itineraryItemRepository.findByIdOptional(id)
                 .orElseThrow(() -> new NotFoundException("Item not found"));
         //TODO: check update
         flightMapper.updateEntity(dto, entity);
+        entity.setAirline(carrierService.getAirline(dto.airlineIataCode()));
+        entity.setDepartureAirport(mapService.findAirportByIataCode(
+                dto.departureAirportIataCode() ));
+        entity.setArrivalAirport(mapService.findAirportByIataCode(
+                dto.arrivalAirportIataCode() ));
         System.out.println(entity.toString());
         return timelineMapper.toTimelineItemDto(entity);
     }
 
+    @Transactional
     @Override
     public TimelineItemDto updateAccommodation(Long id,
                                                     CreateAccommodationRequest dto) {
@@ -143,6 +175,7 @@ class ItineraryServiceImpl implements ItineraryService {
         return timelineMapper.toTimelineItemDto(entity);
     }
 
+    @Transactional
     @Override
     public TimelineItemDto updateActivity(Long id, CreateActivityRequest dto) {
         Activity entity = (Activity) itineraryItemRepository.findByIdOptional(id)
@@ -153,6 +186,7 @@ class ItineraryServiceImpl implements ItineraryService {
         return timelineMapper.toTimelineItemDto(entity);
     }
 
+    @Transactional
     @Override
     public void deleteItem(Long id) {
         if(!itineraryItemRepository.deleteById(id))
@@ -189,7 +223,8 @@ class ItineraryServiceImpl implements ItineraryService {
 
     @Override
     public FullItineraryDto getItinerary(Long userId, Long tripId) {
-        Trip trip = tripService.getTripClassById(tripId, userId);
+        Trip trip = tripService.getTripClassById(userId, tripId);
+        System.out.println(trip.toString());
         List<TimelineItemDto> items = getTimelineItemsByTripId(tripId);
         return new FullItineraryDto(
                 tripMapper.toTripTimelineDto(trip),
@@ -200,7 +235,7 @@ class ItineraryServiceImpl implements ItineraryService {
     private List<TimelineItemDto> getTimelineItemsByTripId(Long tripId) {
         List<BaseItineraryItem> itemList = itineraryItemRepository.findByTripId(tripId);
         if(itemList == null || itemList.isEmpty())
-            throw new NotFoundException("Items not found");
+            return Collections.emptyList();
         List<TimelineItemDto> dtoList = new ArrayList<>();
         TimelineItemDto dtoItem;
         for (BaseItineraryItem item : itemList) {

@@ -18,8 +18,10 @@ public interface AccommodationMapper {
     @Mapping(target = "trip", ignore = true)
     Accommodation toEntity(CreateAccommodationRequest dto);
 
+    @Mapping(target = "trip", ignore = true)
     void updateEntity(CreateAccommodationRequest dto, @MappingTarget Accommodation entity);
 
+    @Mapping(target = "tripId", source = "trip.id")
     FullAccommodationDto toAccommodationDto(Accommodation entity);
 
 }

@@ -6,7 +6,6 @@ import travel.map.dto.PlaceDto;
 import java.time.Instant;
 
 public record CreateTransportRequest(
-        Long tripId,
         Instant startDateTime,
         Instant endDateTime,
         String notes,

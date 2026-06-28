@@ -22,6 +22,7 @@ public interface TimelineMapper {
     @SubclassMapping(source = Flight.class,   target = TimelineItemDto.class)
     @SubclassMapping(source = Accommodation.class, target = TimelineItemDto.class)
     @SubclassMapping(source = Activity.class, target = TimelineItemDto.class)
+
     TimelineItemDto toTimelineItemDto(BaseItineraryItem item);
 
 

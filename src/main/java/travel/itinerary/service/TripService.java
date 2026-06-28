@@ -8,7 +8,7 @@ import travel.itinerary.entity.Trip;
 import java.util.List;
 
 public interface TripService {
-    ShortTripDto createTrip(CreateTripRequest trip);
+    ShortTripDto createTrip(Long userId, CreateTripRequest trip);
     TripDto updateTrip(Long userId, Long tripId, CreateTripRequest trip);
     void deleteTrip(Long userId, Long tripId);
     TripDto getTripById(Long userId, Long tripId);

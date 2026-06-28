@@ -15,12 +15,12 @@ import java.util.List;
 public interface ItineraryService {
 
     //return timeline dtos (for itinerary view)
-    TimelineItemDto addTransport(Long userId, CreateTransportRequest dto);
-    TimelineItemDto addFlight(Long userId, CreateFlightRequest dto);
-    TimelineItemDto addAccommodation(Long userId, CreateAccommodationRequest dto);
-    TimelineItemDto addActivity(Long userId, CreateActivityRequest dto);
+    TimelineItemDto addTransport(Long userId, Long tripId, CreateTransportRequest dto);
+    TimelineItemDto addFlight(Long userId, Long tripId, CreateFlightRequest dto);
+    TimelineItemDto addAccommodation(Long userId, Long tripId, CreateAccommodationRequest dto);
+    TimelineItemDto addActivity(Long userId, Long tripId, CreateActivityRequest dto);
 
-    TimelineItemDto updateTransport(Long id,CreateTransportRequest dto);
+    TimelineItemDto updateTransport(Long id, CreateTransportRequest dto);
     TimelineItemDto updateFlight(Long id, CreateFlightRequest dto);
     TimelineItemDto updateAccommodation(Long id, CreateAccommodationRequest dto);
     TimelineItemDto updateActivity(Long id, CreateActivityRequest dto);

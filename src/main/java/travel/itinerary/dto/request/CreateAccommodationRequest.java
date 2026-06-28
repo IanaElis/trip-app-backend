@@ -5,7 +5,6 @@ import travel.map.dto.PlaceDto;
 import java.time.Instant;
 
 public record CreateAccommodationRequest(
-        Long tripId,
         Instant startDateTime,
         Instant endDateTime,
         String notes,

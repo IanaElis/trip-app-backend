@@ -24,7 +24,12 @@ public interface FlightMapper {
     @Mapping(target = "trip", ignore = true)
     Flight toEntity(CreateFlightRequest dto);
 
+    @Mapping(target = "trip", ignore = true)
+    @Mapping(target = "airline", ignore = true)
+    @Mapping(target = "departureAirport", ignore = true)
+    @Mapping(target = "arrivalAirport", ignore = true)
     void updateEntity(CreateFlightRequest dto, @MappingTarget Flight entity);
 
+    @Mapping(target = "tripId", source = "trip.id")
     FullFlightDto toDto(Flight entity);
 }
