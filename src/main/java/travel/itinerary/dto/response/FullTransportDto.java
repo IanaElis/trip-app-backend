@@ -7,6 +7,7 @@ import java.time.Instant;
 public record FullTransportDto(
         Long id,
         Long tripId,
+        String itemType,
         Instant startDateTime,
         Instant endDateTime,
         String notes,

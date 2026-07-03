@@ -2,44 +2,36 @@ package user.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Size;
 
 import java.time.Instant;
 
-//@Entity
-//@Table("users")
+@Entity
+@Table(name = "users")
 public class User {
-//    @Id
-//    @GeneratedValue
+    @Id
+    @GeneratedValue
     private Long id;
 
-//    @Column("")
-    private String firstName;
-
-//    @Column("")
-    private String lastName;
-
-//    @Email
-//    @Column("")
+    @Email
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-//    @Enumerated(EnumType.STRING)
-//    @Column("")
-    private Role role;
+    @Column(name = "password_hash", nullable = false)
+    private String passwordHash;
 
-//    @Column("")
+    @Column(name = "username")
     private String username;
 
-//    @Column("")
-    private String password;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    private Role role;
 
-//    @Column("")
+    @Column(name = "status")
     private Status status;
 
- //   @Column(name = "created_at",
- //           insertable = false,
- //           updatable = false,
- //           nullable = false)
+    @Column(name = "created_at",
+            updatable = false,
+            nullable = false)
     private Instant createdAt;
 
     public User() {
@@ -47,22 +39,6 @@ public class User {
 
     public Long getId(){
         return id;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
     }
 
     public String getEmail() {
@@ -73,12 +49,12 @@ public class User {
         this.email = email;
     }
 
-    public Role getRole() {
-        return role;
+    public String getPasswordHash() {
+        return passwordHash;
     }
 
-    public void setRole(Role role) {
-        this.role = role;
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
     public String getUsername() {
@@ -89,12 +65,12 @@ public class User {
         this.username = username;
     }
 
-    public String getPassword() {
-        return password;
+    public Role getRole() {
+        return role;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     public Status getStatus() {
@@ -105,8 +81,12 @@ public class User {
         this.status = status;
     }
 
-    public Instant getCreatedAt(){
+    public Instant getCreatedAt() {
         return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
     }
 
 }

@@ -1,6 +1,8 @@
 package travel.itinerary.dto.request;
 
 
+import travel.map.dto.PlaceDto;
+
 import java.time.Instant;
 
 public record CreateFlightRequest(
@@ -9,8 +11,8 @@ public record CreateFlightRequest(
         String notes,
         String confirmationNumber,
         String airlineIataCode,
-        String departureAirportIataCode,
-        String arrivalAirportIataCode,
+        PlaceDto departureAirport,
+        PlaceDto arrivalAirport,
         String flightNumber
 ) {
 }

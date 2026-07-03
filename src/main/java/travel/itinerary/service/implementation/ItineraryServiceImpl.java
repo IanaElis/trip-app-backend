@@ -25,6 +25,7 @@ import travel.itinerary.repository.ItineraryItemRepository;
 import travel.itinerary.service.CarrierService;
 import travel.itinerary.service.ItineraryService;
 import travel.itinerary.service.TripService;
+import travel.map.entity.Airport;
 import travel.map.service.MapService;
 
 import java.util.ArrayList;
@@ -87,8 +88,13 @@ class ItineraryServiceImpl implements ItineraryService {
 
         flight.setAirline(carrierService.getAirline(dto.airlineIataCode()));
 
-        flight.setDepartureAirport(mapService.findAirportByIataCode(dto.departureAirportIataCode()));
-        flight.setArrivalAirport(mapService.findAirportByIataCode(dto.arrivalAirportIataCode()));
+        Airport depatureAirport = mapService
+                .getAirportByNameAndCityAndUpdate(dto.departureAirport());
+        Airport arrivalAirport = mapService
+                .getAirportByNameAndCityAndUpdate(dto.arrivalAirport());
+
+        flight.setDepartureAirport(depatureAirport);
+        flight.setArrivalAirport(arrivalAirport);
 
         itineraryItemRepository.persist(flight);
         return timelineMapper.toTimelineItemDto(flight);
@@ -154,11 +160,11 @@ class ItineraryServiceImpl implements ItineraryService {
         //TODO: check update
         flightMapper.updateEntity(dto, entity);
         entity.setAirline(carrierService.getAirline(dto.airlineIataCode()));
-        entity.setDepartureAirport(mapService.findAirportByIataCode(
-                dto.departureAirportIataCode() ));
-        entity.setArrivalAirport(mapService.findAirportByIataCode(
-                dto.arrivalAirportIataCode() ));
-        System.out.println(entity.toString());
+        entity.setDepartureAirport(mapService
+                .getAirportByNameAndCityAndUpdate(dto.departureAirport()));
+        entity.setArrivalAirport(mapService
+                .getAirportByNameAndCityAndUpdate(dto.arrivalAirport()));
+        System.out.println(entity);
         return timelineMapper.toTimelineItemDto(entity);
     }
 

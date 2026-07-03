@@ -22,6 +22,8 @@ public interface ActivityMapper {
     void updateEntity(CreateActivityRequest dto, @MappingTarget Activity entity);
 
     @Mapping(target = "tripId", source = "trip.id")
+    @Mapping(target = "itemType", constant = "ACTIVITY")
+    @Mapping(target = "location", source = "location")
     FullActivityDto toDto(Activity dto);
 
 }

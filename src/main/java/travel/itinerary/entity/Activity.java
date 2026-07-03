@@ -14,7 +14,7 @@ public class Activity extends BaseItineraryItem {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "location_id")
     private Place location;
 

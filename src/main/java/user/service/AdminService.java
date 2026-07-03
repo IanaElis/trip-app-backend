@@ -5,7 +5,8 @@ import user.dto.UserDto;
 import java.util.List;
 
 public interface AdminService {
-    UserDto blockUser(Long id);
+    void blockUser(Long id);
+    void unblockUser(Long id);
 
     UserDto getUser(Long id);
     List<UserDto> getBlockedUsers();

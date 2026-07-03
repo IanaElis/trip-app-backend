@@ -25,6 +25,8 @@ public interface PlaceMapper {
     @Mapping(target = "googlePlaceId", source = "place.googlePlaceId")
     @Mapping(target = "latitude", source = "place.latitude")
     @Mapping(target = "longitude", source = "place.longitude")
+    @Mapping(target = "name", source = "place.name")
+    @Mapping(target = "formattedAddress", source = "place.address")
     @Mapping(target = "city", source = "place.city")
     @Mapping(target = "timezoneId", source = "place.timezoneId")
     AirportDto toAirportDto(Airport entity);

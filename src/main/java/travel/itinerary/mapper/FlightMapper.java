@@ -31,5 +31,6 @@ public interface FlightMapper {
     void updateEntity(CreateFlightRequest dto, @MappingTarget Flight entity);
 
     @Mapping(target = "tripId", source = "trip.id")
+    @Mapping(target = "itemType", constant = "FLIGHT")
     FullFlightDto toDto(Flight entity);
 }

@@ -22,6 +22,7 @@ public interface AccommodationMapper {
     void updateEntity(CreateAccommodationRequest dto, @MappingTarget Accommodation entity);
 
     @Mapping(target = "tripId", source = "trip.id")
+    @Mapping(target = "itemType", constant = "ACCOMMODATION")
     FullAccommodationDto toAccommodationDto(Accommodation entity);
 
 }

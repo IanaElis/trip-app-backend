@@ -12,6 +12,7 @@ import travel.itinerary.dto.response.FullAccommodationDto;
 import travel.itinerary.dto.response.FullActivityDto;
 import travel.itinerary.dto.response.FullFlightDto;
 import travel.itinerary.dto.response.FullTransportDto;
+import travel.itinerary.dto.timeline.FullItineraryDto;
 import travel.itinerary.dto.timeline.TimelineItemDto;
 import travel.itinerary.service.ItineraryService;
 
@@ -135,6 +136,13 @@ public class ItineraryController {
     @Path("/flight/{id}")
     public Response getFlight(@PathParam("id") Long itemId){
         FullFlightDto result = itineraryService.getFlightById(itemId);
+        return Response.ok(result).build();
+    }
+
+    @GET
+    @Path("/itinerary")
+    public Response getItinerary(@PathParam("trip_id") Long tripId){
+        FullItineraryDto result = itineraryService.getItinerary(userId, tripId);
         return Response.ok(result).build();
     }
 

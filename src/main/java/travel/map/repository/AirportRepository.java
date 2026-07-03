@@ -11,4 +11,8 @@ public class AirportRepository implements PanacheRepository<Airport> {
     public Optional<Airport> findByIataCode(String iataCode) {
         return find("iataCode", iataCode).firstResultOptional();
     }
+
+    public Airport findByNameAndCity(String name, String city) {
+        return find("place.name = ?1 AND place.city = ?2", name, city).firstResult();
+    }
 }

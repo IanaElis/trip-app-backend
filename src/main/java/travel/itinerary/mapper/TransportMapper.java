@@ -35,6 +35,7 @@ public interface TransportMapper {
     @Mapping(target = "companyName", source = "company.name")
     @Mapping(target = "transportType", source = "type")
     @Mapping(target = "transportId", source = "transportIdentifier")
+    @Mapping(target = "itemType", constant = "TRANSPORT")
     FullTransportDto toTransportDto(Transport entity);
 
     @Mapping(target = "companyName", source = "company.name")

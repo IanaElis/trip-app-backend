@@ -1,11 +1,11 @@
 package user.dto;
 
-import user.entity.Status;
+import user.entity.Role;
 
 public record UserDto(
         Long id,
         String email,
         String username,
-        Status status
+        Role role
 ) {
 }

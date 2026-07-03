@@ -5,6 +5,8 @@ public record AirportDto(
         Double latitude,
         Double longitude,
         String iataCode,
+        String name,
+        String formattedAddress,
         String city,
         String timezoneId
 ) {

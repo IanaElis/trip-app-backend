@@ -34,7 +34,27 @@ class MapServiceImpl implements MapService {
 
     @Override
     public Airport findAirportByIataCode(String iataCode) {
-        return airportRepository.findByIataCode(iataCode).orElseThrow(
-                () -> new NotFoundException("Airport not found"));
+        return airportRepository.findByIataCode(iataCode)
+                .orElseThrow(() -> new NotFoundException("Airport not found"));
     }
+
+    @Transactional
+    @Override
+    public Airport getAirportByNameAndCityAndUpdate(PlaceDto dto) {
+        Airport airport = airportRepository.findByNameAndCity(dto.name(), dto.city());
+        if(airport == null) {
+            throw new NotFoundException("Airport not found");
+        }
+
+        Place place = airport.getPlace();
+
+        place.setGooglePlaceId(dto.googlePlaceId());
+        place.setAddress(dto.address());
+        place.setTimezoneId(dto.timezoneId());
+
+        airportRepository.persistAndFlush(airport);
+        return airport;
+
+    }
+
 }

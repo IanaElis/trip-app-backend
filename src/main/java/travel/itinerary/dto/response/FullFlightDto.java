@@ -8,6 +8,7 @@ import java.time.Instant;
 public record FullFlightDto(
         Long id,
         Long tripId,
+        String itemType,
         Instant startDateTime,
         Instant endDateTime,
         String notes,
