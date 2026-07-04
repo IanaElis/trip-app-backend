@@ -9,7 +9,7 @@ import java.time.Instant;
 @Table(name = "users")
 public class User {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Email
@@ -19,14 +19,15 @@ public class User {
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
-    @Column(name = "username")
+    @Column(name = "username", length = 100)
     private String username;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "role")
+    @Column(name = "role", length = 30)
     private Role role;
 
-    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 30)
     private Status status;
 
     @Column(name = "created_at",
