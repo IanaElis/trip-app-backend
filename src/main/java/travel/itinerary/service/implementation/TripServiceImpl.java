@@ -43,7 +43,8 @@ class TripServiceImpl implements TripService {
                 .orElseThrow(() -> new NotFoundException("Trip not found"));
 
         tripMapper.updateTrip(dto, oldTrip);
-        //TODO: compare old and new, update fields, check!
+        oldTrip.setDestination(mapService.findOrCreatePlace(dto.destination()));
+        //TODO: compare old and new, check
         System.out.println(oldTrip.toString());
         return tripMapper.toTripTimelineDto(oldTrip);
     }

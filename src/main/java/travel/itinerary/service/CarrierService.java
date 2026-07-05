@@ -4,6 +4,7 @@ import travel.itinerary.dto.AirlineDto;
 import travel.itinerary.dto.CompanyDto;
 import travel.itinerary.entity.carrier.Airline;
 import travel.itinerary.entity.carrier.Company;
+import travel.itinerary.entity.carrier.CompanyType;
 import travel.itinerary.entity.transport.TransportType;
 
 import java.util.List;
@@ -26,7 +27,8 @@ public interface CarrierService {
 
     Company getCompanyByName(String companyName);
 
-    List<String> getAllCompaniesByType(String type);
+    List<CompanyDto> getAllCompaniesByType(CompanyType type);
+
     List<CompanyDto> getAllCompanies();
 
     void deleteCompany(String companyName);

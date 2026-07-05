@@ -1,6 +1,8 @@
 package user.controller;
 
+import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -10,23 +12,22 @@ import user.service.AdminService;
 @Path("/admin")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@PermitAll
+@RolesAllowed("ADMIN")
 public class AdminController {
     @Inject
     AdminService adminService;
 
-    @POST
+    @PUT
     @Path("/users/{id}/block")
     public Response blockUser(@PathParam("id") Long id) {
-        adminService.blockUser(id);
-        return Response.ok().build();
+        return Response.ok( adminService.blockUser(id) ).build();
     }
 
-    @DELETE
-    @Path("/users/{id}/block")
+    @PUT
+    @Path("/users/{id}/unblock")
     public Response unblockUser(@PathParam("id") Long id) {
-        adminService.unblockUser(id);
-        return Response.ok().build();
+
+        return Response.ok(   adminService.unblockUser(id) ).build();
     }
 
     @GET
@@ -44,7 +45,7 @@ public class AdminController {
     @GET
     @Path("/users")
     public Response getUsers() {
-        return Response.ok(adminService.getAllUsers()).build();
+        return Response.ok( adminService.getAllUsers() ).build();
     }
 
 }

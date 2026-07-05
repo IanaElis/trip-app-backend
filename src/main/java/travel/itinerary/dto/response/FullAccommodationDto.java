@@ -13,5 +13,5 @@ public record FullAccommodationDto(
         String notes,
         LocationDto location,
         String reservationNumber
-) {
+) implements FullItineraryItemDto {
 }

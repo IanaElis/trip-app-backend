@@ -5,6 +5,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
+import user.dto.AdminUserDto;
 import user.dto.UserDto;
 import user.entity.Status;
 import user.entity.User;
@@ -23,24 +24,24 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
-    public void blockUser(Long id) {
+    public AdminUserDto blockUser(Long id) {
         User user = findUser(id);
-        if(user.getStatus() == Status.BLOCKED) {
-            return;
+        if(user.getStatus() == Status.ACTIVE) {
+            user.setStatus(Status.BLOCKED);
         }
-        user.setStatus(Status.BLOCKED);
         //TODO: check persistence
+        return userMapper.toAdminUserDto(user);
     }
 
     @Transactional
     @Override
-    public void unblockUser(Long id) {
+    public AdminUserDto unblockUser(Long id) {
         User user = findUser(id);
         if(user.getStatus() == Status.BLOCKED) {
-            return;
+            user.setStatus(Status.ACTIVE);
         }
-        user.setStatus(Status.ACTIVE);
         //TODO: check persistence
+        return userMapper.toAdminUserDto(user);
     }
 
     @Override
@@ -56,9 +57,9 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public List<UserDto> getAllUsers() {
+    public List<AdminUserDto> getAllUsers() {
         List<User> userList = userRepository.listAll(Sort.descending("createdAt"));
-        return userMapper.toDto(userList);
+        return userMapper.toAdminUserDto(userList);
     }
 
     private User findUser(Long id){

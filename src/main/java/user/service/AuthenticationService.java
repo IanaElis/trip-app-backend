@@ -13,7 +13,10 @@ public interface AuthenticationService {
     void logout(String refreshToken);
 
     UserDto currentUser(Long userId);
+    UserDto updateProfile(Long userId, UpdateProfileDto dto);
 
     void forgotPassword(ForgotPasswordDto dto);
-    boolean resetPassword(ResetPasswordDto dto);
+    void resetPassword(ResetPasswordDto dto);
+
+
 }

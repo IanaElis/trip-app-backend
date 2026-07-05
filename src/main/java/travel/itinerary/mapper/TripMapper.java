@@ -19,6 +19,7 @@ public interface TripMapper {
     Trip toTripEntity(CreateTripRequest dto);
 
     @Mapping(target = "userId", ignore = true)
+    @Mapping(target = "destination", ignore = true)
     void updateTrip(CreateTripRequest dto, @MappingTarget Trip trip);
 
     @Mapping(target = "destination.formattedAddress", source = "destination.address")

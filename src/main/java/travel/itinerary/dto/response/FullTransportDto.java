@@ -17,5 +17,5 @@ public record FullTransportDto(
         LocationDto departureLocation,
         LocationDto arrivalLocation,
         String transportId
-) {
+) implements FullItineraryItemDto {
 }

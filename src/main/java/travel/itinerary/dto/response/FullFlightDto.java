@@ -17,5 +17,5 @@ public record FullFlightDto(
         AirportDto departureAirport,
         AirportDto arrivalAirport,
         String flightNumber
-){
+) implements FullItineraryItemDto {
 }

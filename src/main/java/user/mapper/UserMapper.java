@@ -3,6 +3,7 @@ package user.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValueMappingStrategy;
+import user.dto.AdminUserDto;
 import user.dto.UserDto;
 import user.entity.User;
 
@@ -13,4 +14,6 @@ public interface UserMapper {
 
     UserDto toDto(User user);
     List<UserDto> toDto(List<User> users);
+    AdminUserDto toAdminUserDto(User user);
+    List<AdminUserDto> toAdminUserDto(List<User> users);
 }

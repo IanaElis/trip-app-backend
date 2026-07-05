@@ -127,13 +127,9 @@ class CarrierServiceImpl implements CarrierService {
     }
 
     @Override
-    public List<String> getAllCompaniesByType(String type) {
+    public List<CompanyDto> getAllCompaniesByType(CompanyType type) {
         List<Company> list = companyRepository.findByType(type);
-        List<String> companies = new ArrayList<>();
-        for(Company company : list){
-            companies.add(company.getName());
-        }
-        return companies;
+        return carrierMapper.toCompanyDtoList(list);
     }
 
     @Override

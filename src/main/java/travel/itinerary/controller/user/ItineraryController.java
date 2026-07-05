@@ -1,17 +1,16 @@
 package travel.itinerary.controller.user;
 
+import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 import travel.itinerary.dto.request.CreateAccommodationRequest;
 import travel.itinerary.dto.request.CreateActivityRequest;
 import travel.itinerary.dto.request.CreateFlightRequest;
 import travel.itinerary.dto.request.CreateTransportRequest;
-import travel.itinerary.dto.response.FullAccommodationDto;
-import travel.itinerary.dto.response.FullActivityDto;
-import travel.itinerary.dto.response.FullFlightDto;
-import travel.itinerary.dto.response.FullTransportDto;
+import travel.itinerary.dto.response.*;
 import travel.itinerary.dto.timeline.FullItineraryDto;
 import travel.itinerary.dto.timeline.TimelineItemDto;
 import travel.itinerary.service.ItineraryService;
@@ -21,25 +20,26 @@ import java.net.URI;
 @Path("/trips/{trip_id}")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-//@Authenticated
+@Authenticated
 public class ItineraryController {
     @Inject
     ItineraryService itineraryService;
-    private static final Long userId = 1L;
+    @Inject
+    JsonWebToken jwt;
+
+    Long getUserId() {
+        String subject = jwt.getSubject();
+        return Long.parseLong(subject);
+    }
 
     @POST
     @Path("/accommodation/create")
     public Response createAccommodation(@PathParam("trip_id") Long tripId,
             CreateAccommodationRequest dto){
         TimelineItemDto created = null;
-        try{
         created = itineraryService
-                .addAccommodation(userId, tripId, dto);}
-        catch(Exception e){
-            e.printStackTrace();
-        }
+                .addAccommodation(getUserId(), tripId, dto);
         return Response.ok(created).build();
-                //Response.seeOther(URI.create("/trips/" + tripId)).build();
     }
 
     @POST
@@ -47,8 +47,8 @@ public class ItineraryController {
     public Response createActivity(@PathParam("trip_id") Long tripId,
                                         CreateActivityRequest dto){
         TimelineItemDto created = itineraryService
-                .addActivity(userId, tripId, dto);
-        return Response.seeOther(URI.create("/trips/" + tripId)).build();
+                .addActivity(getUserId(), tripId, dto);
+        return Response.ok(created).build();
     }
 
     @POST
@@ -56,8 +56,8 @@ public class ItineraryController {
     public Response createTransport(@PathParam("trip_id") Long tripId,
                                         CreateTransportRequest dto){
         TimelineItemDto created = itineraryService
-                .addTransport(userId, tripId, dto);
-        return Response.seeOther(URI.create("/trips/" + tripId)).build();
+                .addTransport(getUserId(), tripId, dto);
+        return Response.ok(created).build();
     }
 
     @POST
@@ -65,8 +65,8 @@ public class ItineraryController {
     public Response createFlight(@PathParam("trip_id") Long tripId,
                                         CreateFlightRequest dto){
         TimelineItemDto created = itineraryService
-                .addFlight(userId, tripId, dto);
-        return Response.seeOther(URI.create("/trips/" + tripId)).build();
+                .addFlight(getUserId(), tripId, dto);
+        return Response.ok(created).build();
     }
 
     @PUT
@@ -75,7 +75,7 @@ public class ItineraryController {
                                         @PathParam("id") Long itemId,
                                         CreateAccommodationRequest dto){
         TimelineItemDto updated = itineraryService.updateAccommodation(itemId, dto);
-        return Response.seeOther(URI.create("/trips/" + tripId)).build();
+        return Response.ok(updated).build();
     }
 
     @PUT
@@ -84,7 +84,7 @@ public class ItineraryController {
                                         @PathParam("id") Long itemId,
                                         CreateActivityRequest dto){
         TimelineItemDto updated = itineraryService.updateActivity(itemId, dto);
-        return Response.seeOther(URI.create("/trips/" + tripId)).build();
+        return Response.ok(updated).build();
     }
 
     @PUT
@@ -93,7 +93,7 @@ public class ItineraryController {
                                         @PathParam("id") Long itemId,
                                         CreateTransportRequest dto){
         TimelineItemDto updated = itineraryService.updateTransport(itemId, dto);
-        return Response.seeOther(URI.create("/trips/" + tripId)).build();
+        return Response.ok(updated).build();
     }
 
     @PUT
@@ -102,7 +102,7 @@ public class ItineraryController {
                                         @PathParam("id") Long itemId,
                                         CreateFlightRequest dto){
         TimelineItemDto updated = itineraryService.updateFlight(itemId, dto);
-        return Response.seeOther(URI.create("/trips/" + tripId)).build();
+        return Response.ok(updated).build();
     }
 
     @DELETE
@@ -110,7 +110,7 @@ public class ItineraryController {
     public Response deleteItineraryItem(@PathParam("trip_id") Long tripId,
                                         @PathParam("id") Long itemId) {
         itineraryService.deleteItem(itemId);
-        return Response.seeOther(URI.create("/trips/" + tripId)).build();
+        return Response.noContent().build();
     }
 
     @GET
@@ -142,8 +142,16 @@ public class ItineraryController {
     @GET
     @Path("/itinerary")
     public Response getItinerary(@PathParam("trip_id") Long tripId){
-        FullItineraryDto result = itineraryService.getItinerary(userId, tripId);
+        FullItineraryDto result = itineraryService.getItinerary(getUserId(), tripId);
         return Response.ok(result).build();
     }
+
+    @GET
+    @Path("/report")
+    public Response getReport(@PathParam("trip_id") Long tripId){
+        ReportDto report = itineraryService.getReport(getUserId(), tripId);
+        return Response.ok(report).build();
+    }
+
 
 }

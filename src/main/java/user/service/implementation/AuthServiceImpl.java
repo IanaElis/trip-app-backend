@@ -7,7 +7,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityExistsException;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
+import notifications.service.EmailService;
 import user.dto.*;
 import user.entity.*;
 import user.mapper.UserMapper;
@@ -34,6 +36,8 @@ public class AuthServiceImpl implements AuthenticationService {
     FailedAttemptRepository failedAttemptRepository;
     @Inject
     RefreshTokenRepository refreshTokenRepository;
+    @Inject
+    EmailService emailService;
 
 
     @Inject
@@ -75,7 +79,6 @@ public class AuthServiceImpl implements AuthenticationService {
         String accessToken = jwtService.jwtGenerator(user);
         String refreshToken = createRefreshToken(user);
 
-        //TODO: revoke old refresh tokens, delete
 
         return new TokenPair(accessToken,refreshToken);
     }
@@ -145,6 +148,7 @@ public class AuthServiceImpl implements AuthenticationService {
         return userMapper.toDto(user);
     }
 
+
     @Transactional
     @Override
     public void forgotPassword(ForgotPasswordDto dto){
@@ -152,8 +156,7 @@ public class AuthServiceImpl implements AuthenticationService {
         if(user == null) {
             return;
         }
-        //return "check your email"
-        //TODO: uses refreshTokenGenerator //UUID.randomUUID().toString();
+
         String resetToken = refreshTokenGenerator.generate();
         String hashedToken = HashUtil.sha256(resetToken);
 
@@ -162,30 +165,24 @@ public class AuthServiceImpl implements AuthenticationService {
         prt.setTokenHash(hashedToken);
         prt.setExpiresAt(Instant.now().plus(Duration.ofMinutes(15)));
         prt.setCreatedAt(Instant.now());
-        //TODO: send resetToken by email
+        passwordResetTokenRepository.persist(prt);
+
+        emailService.sendResetEmail(user.getEmail(), resetToken);
 
     }
 
     @Transactional
     @Override
-    public boolean resetPassword(ResetPasswordDto dto){
-        //hash token
-        //find hashed token in db
-        //exists? expired? already used?
-        //UPDATE PASSWORD
-        //token.usedAt = now
-        //success
+    public void resetPassword(ResetPasswordDto dto){
         String receivedTokenHash = HashUtil.sha256(dto.token());
 
         PasswordResetToken token = passwordResetTokenRepository
                 .findByTokenHash(receivedTokenHash)
-                .orElseThrow(() -> new NotFoundException("Token not found"));
+                .orElseThrow(() -> new BadRequestException("Invalid reset token"));
 
         if(token.isExpired()){
-            return false;
-        }
-        if(token.isUsed()){
-            return false;
+            passwordResetTokenRepository.delete(token);
+            throw new BadRequestException("Invalid reset token");
         }
 
         User user = userRepository.findByIdOptional(token.getUser().getId())
@@ -193,10 +190,33 @@ public class AuthServiceImpl implements AuthenticationService {
 
         user.setPasswordHash(BcryptUtil.bcryptHash(dto.newPassword()));
        // userRepository.persistAndFlush(user);
-        token.setUsedAt(Instant.now());
+        passwordResetTokenRepository.delete(token);
       //  passwordResetTokenRepository.persist(token);
-        return true;
+    }
+
+    @Transactional
+    @Override
+    public UserDto updateProfile(Long userId, UpdateProfileDto dto){
+        User user = userRepository.findById(userId);
+        if(user == null) {
+            throw new NotFoundException("User not found");
         }
+        if(dto.email() != null){
+            user.setEmail(dto.email());
+        }
+        if(dto.username() != null){
+            user.setUsername(dto.username());
+        }
+        if (dto.currentPassword() == null || dto.newPassword() == null) {
+            throw new BadRequestException("Both password fields are required");
+        }
+        if(!BcryptUtil.matches(dto.currentPassword(), user.getPasswordHash())){
+            throw new UnauthorizedException("Current password does not match");
+        }
+        user.setPasswordHash(BcryptUtil.bcryptHash(dto.newPassword()));
+
+        return userMapper.toDto(user);
+    }
 
 
     private String createRefreshToken(User user) {

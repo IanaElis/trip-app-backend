@@ -24,9 +24,7 @@ import java.util.List;
 public class TripController {
     @Inject
     TripService tripService;
-    @Inject
-    ItineraryService itineraryService;
-    private static final Long userId = 1L;
+
     @Inject
     JsonWebToken jwt;
 
@@ -39,9 +37,7 @@ public class TripController {
     @Path("/")
     public Response createTrip(CreateTripRequest createTripRequest) {
         ShortTripDto tripCreated = tripService.createTrip(getUserId(), createTripRequest);
-        return Response.seeOther(URI
-               .create("/trips/" + tripCreated.id())).build();
-        //return Response.status(Response.Status.CREATED).entity(tripCreated).build();
+        return Response.status(Response.Status.CREATED).entity(tripCreated).build();
     }
 
     @PUT
@@ -51,24 +47,24 @@ public class TripController {
         return Response.ok(tripUpdated).build();
     }
 
-//    @GET
-//    @Path("/{trip_id}")
-//    public Response getTrip(@PathParam("trip_id") Long tripId) {
-//        TripDto result = tripService.getTripById(userId, tripId);
-//        return Response.ok(result).build();
-//    }
-
     @GET
     @Path("/{trip_id}")
     public Response getTrip(@PathParam("trip_id") Long tripId) {
-        FullItineraryDto result = null;
-        try {
-            result = itineraryService.getItinerary(getUserId(), tripId);
-        }catch (Exception e){
-            System.out.println(e.getMessage());
-        }
+        TripDto result = tripService.getTripById(getUserId(), tripId);
         return Response.ok(result).build();
     }
+
+//    @GET
+//    @Path("/{trip_id}")
+//    public Response getTrip(@PathParam("trip_id") Long tripId) {
+//        FullItineraryDto result = null;
+//        try {
+//            result = itineraryService.getItinerary(getUserId(), tripId);
+//        }catch (Exception e){
+//            System.out.println(e.getMessage());
+//        }
+//        return Response.ok(result).build();
+//    }
 
     @GET
     public Response getAllTripsForUser() {
@@ -79,8 +75,8 @@ public class TripController {
     @DELETE
     @Path("/{trip_id}")
     public Response deleteTrip(@PathParam("trip_id") Long tripId) {
-        tripService.deleteTrip(userId, tripId);
-        return Response.seeOther(URI.create("/trips")).build(); //?
+        tripService.deleteTrip(getUserId(), tripId);
+        return Response.noContent().build();
     }
 
 }

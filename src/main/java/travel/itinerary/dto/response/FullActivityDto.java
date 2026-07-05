@@ -14,5 +14,5 @@ public record FullActivityDto(
         String title,
         String description,
         LocationDto location
-) {
+) implements FullItineraryItemDto {
 }

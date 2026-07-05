@@ -8,9 +8,8 @@ import travel.itinerary.dto.response.FullAccommodationDto;
 import travel.itinerary.dto.response.FullActivityDto;
 import travel.itinerary.dto.response.FullFlightDto;
 import travel.itinerary.dto.response.FullTransportDto;
+import travel.itinerary.dto.response.ReportDto;
 import travel.itinerary.dto.timeline.*;
-
-import java.util.List;
 
 public interface ItineraryService {
 
@@ -34,4 +33,6 @@ public interface ItineraryService {
     FullActivityDto getActivityById(Long id);
 
     FullItineraryDto getItinerary(Long userId, Long tripId);
+
+    ReportDto getReport(Long userId, Long tripId);
 }

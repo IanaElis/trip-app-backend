@@ -79,7 +79,6 @@ public class UserController {
         NewCookie cookie2 = cookieService
                 .createCookie(REFRESH_TOKEN_NAME, tokens.refreshToken(), (int)REFRESH_TTL.toSeconds());
 
-
         return Response.ok().cookie(cookie, cookie2).build();
     }
 
@@ -97,19 +96,16 @@ public class UserController {
 
     @POST
     @Path("/forgot-password")
-    public Response forgotPassword(ForgotPasswordDto dto) {
+    public Response forgotPassword(@Valid ForgotPasswordDto dto) {
         authService.forgotPassword(dto);
         return Response.ok().build();
     }
 
     @POST
     @Path("/reset-password")
-    public Response resetPassword(ResetPasswordDto dto) {
-        boolean success = authService.resetPassword(dto);
-        if(success) {
-            return Response.ok().build();
-        }
-        else return Response.status(Response.Status.UNAUTHORIZED).build();
+    public Response resetPassword(@Valid ResetPasswordDto dto) {
+        authService.resetPassword(dto);
+        return Response.ok().build();
     }
 
     @GET
@@ -119,11 +115,21 @@ public class UserController {
         String userId = jwt.getSubject();
 
         if (userId == null) {
-            System.out.println("Hit /me, userId null");
             return Response.status(401).build();
         }
-        System.out.println("Hit /me, userId is" + userId + ", time: " + Instant.now());
         UserDto userInfo = authService.currentUser(Long.parseLong(userId));
+        return Response.ok(userInfo).build();
+    }
+
+    @PUT
+    @Path("/profile")
+    public Response updateProfile(@Valid UpdateProfileDto dto) {
+        String userId = jwt.getSubject();
+
+        if (userId == null) {
+            return Response.status(401).build();
+        }
+        UserDto userInfo = authService.updateProfile(Long.parseLong(userId), dto);
         return Response.ok(userInfo).build();
     }
 

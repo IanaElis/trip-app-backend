@@ -8,10 +8,7 @@ import travel.itinerary.dto.request.CreateAccommodationRequest;
 import travel.itinerary.dto.request.CreateActivityRequest;
 import travel.itinerary.dto.request.CreateFlightRequest;
 import travel.itinerary.dto.request.CreateTransportRequest;
-import travel.itinerary.dto.response.FullAccommodationDto;
-import travel.itinerary.dto.response.FullActivityDto;
-import travel.itinerary.dto.response.FullFlightDto;
-import travel.itinerary.dto.response.FullTransportDto;
+import travel.itinerary.dto.response.*;
 import travel.itinerary.dto.timeline.*;
 import travel.itinerary.entity.Accommodation;
 import travel.itinerary.entity.Activity;
@@ -69,6 +66,9 @@ class ItineraryServiceImpl implements ItineraryService {
         Company c = null;
         if(dto.companyId() == null) {
             c = carrierService.getOrCreateCompany(dto.companyName(), dto.type());
+        }
+        else{
+            c = carrierService.getCompany(dto.companyId());
         }
         transport.setCompany(c);
         transport.setDepartureLocation(mapService.findOrCreatePlace(dto.departureLocation()));
@@ -230,9 +230,18 @@ class ItineraryServiceImpl implements ItineraryService {
     @Override
     public FullItineraryDto getItinerary(Long userId, Long tripId) {
         Trip trip = tripService.getTripClassById(userId, tripId);
-        System.out.println(trip.toString());
         List<TimelineItemDto> items = getTimelineItemsByTripId(tripId);
         return new FullItineraryDto(
+                tripMapper.toTripTimelineDto(trip),
+                items
+        );
+    }
+
+    @Override
+    public ReportDto getReport(Long userId, Long tripId) {
+        Trip trip = tripService.getTripClassById(userId, tripId);
+        List<FullItineraryItemDto> items = getFullItineraryItemsByTripId(tripId);
+        return new ReportDto(
                 tripMapper.toTripTimelineDto(trip),
                 items
         );
@@ -246,6 +255,30 @@ class ItineraryServiceImpl implements ItineraryService {
         TimelineItemDto dtoItem;
         for (BaseItineraryItem item : itemList) {
             dtoItem = timelineMapper.toTimelineItemDto(item);
+            dtoList.add(dtoItem);
+        }
+        return dtoList;
+    }
+
+    private List<FullItineraryItemDto> getFullItineraryItemsByTripId(Long tripId) {
+        List<BaseItineraryItem> itemList = itineraryItemRepository.findByTripId(tripId);
+        if(itemList == null || itemList.isEmpty())
+            return Collections.emptyList();
+        List<FullItineraryItemDto> dtoList = new ArrayList<>();
+        FullItineraryItemDto dtoItem = null;
+        for (BaseItineraryItem item : itemList) {
+            if(item instanceof Accommodation) {
+                dtoItem = accommodationMapper.toAccommodationDto((Accommodation) item);
+            }
+            if(item instanceof Flight) {
+                dtoItem = flightMapper.toDto((Flight) item);
+            }
+            if(item instanceof Activity) {
+                dtoItem = activityMapper.toDto((Activity) item);
+            }
+            if(item instanceof Transport) {
+                dtoItem = transportMapper.toTransportDto((Transport) item);
+            }
             dtoList.add(dtoItem);
         }
         return dtoList;
