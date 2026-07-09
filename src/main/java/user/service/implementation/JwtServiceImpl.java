@@ -22,7 +22,7 @@ public class JwtServiceImpl implements JwtService {
         return Jwt.issuer(verifyIssuer)
                 .subject(user.getId().toString())
                 .groups(user.getRole().toString())
-                .expiresIn(Duration.ofHours(12))
+                .expiresIn(Duration.ofMinutes(15))
                 .claim(Claims.email.name(), user.getEmail())
                 .sign(privateKeyLocation);
     }

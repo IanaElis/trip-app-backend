@@ -6,11 +6,11 @@ import notifications.entity.NotificationRule;
 import notifications.entity.TimelineItemType;
 
 import java.util.List;
-//
-//@ApplicationScoped
-//public class NotificationRuleRepository implements PanacheRepository<NotificationRule> {
-//    public List<NotificationRule> findByItemType(TimelineItemType itemType) {
-//        return find("itemType", itemType).list();
-//    }
-//
-//}
+
+@ApplicationScoped
+public class NotificationRuleRepository implements PanacheRepository<NotificationRule> {
+    public List<NotificationRule> findByItemType(TimelineItemType itemType) {
+        return find("itemType", itemType).list();
+    }
+
+}

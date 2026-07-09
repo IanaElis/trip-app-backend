@@ -5,12 +5,7 @@ import jakarta.persistence.*;
 import java.time.Instant;
 
 @Entity
-@Table(
-        name = "base_itinerary_items"
-//        indexes = {
-//        @Index(name = "idx_itinerary_trip_start", columnList = "trip_id, start_datetime")
-//        }
-)
+@Table(name = "base_itinerary_items")
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class BaseItineraryItem{
 

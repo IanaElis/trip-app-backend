@@ -7,7 +7,7 @@ import org.mapstruct.NullValueMappingStrategy;
 import travel.itinerary.dto.request.CreateAccommodationRequest;
 import travel.itinerary.dto.response.FullAccommodationDto;
 import travel.itinerary.entity.Accommodation;
-import travel.map.mapper.PlaceMapper;
+import travel.location.mapper.PlaceMapper;
 
 @Mapper(componentModel = "cdi",
         nullValueIterableMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT,
@@ -19,6 +19,7 @@ public interface AccommodationMapper {
     Accommodation toEntity(CreateAccommodationRequest dto);
 
     @Mapping(target = "trip", ignore = true)
+    @Mapping(target = "location", ignore = true)
     void updateEntity(CreateAccommodationRequest dto, @MappingTarget Accommodation entity);
 
     @Mapping(target = "tripId", source = "trip.id")

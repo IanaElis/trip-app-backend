@@ -22,4 +22,8 @@ public class PasswordResetTokenRepository
     public void deleteExpired(Instant now) {
         delete("expiresAt < ?1", now);
     }
+
+    public long deleteExpiredTokens() {
+        return delete("expiresAt < ?1", Instant.now());
+    }
 }

@@ -11,12 +11,12 @@ import travel.itinerary.entity.Trip;
 import travel.itinerary.mapper.TripMapper;
 import travel.itinerary.repository.TripRepository;
 import travel.itinerary.service.TripService;
-import travel.map.service.MapService;
+import travel.location.service.MapService;
 
 import java.util.List;
 
 @ApplicationScoped
-class TripServiceImpl implements TripService {
+public class TripServiceImpl implements TripService {
     @Inject
     TripRepository tripRepository;
     @Inject
@@ -30,7 +30,6 @@ class TripServiceImpl implements TripService {
         Trip trip = tripMapper.toTripEntity(dto);
         trip.setUserId(userId);
         trip.setDestination(mapService.findOrCreatePlace(dto.destination()));
-        System.out.println(trip);
         tripRepository.persistAndFlush(trip);
         return tripMapper.toTripDto(trip);
     }
@@ -44,8 +43,8 @@ class TripServiceImpl implements TripService {
 
         tripMapper.updateTrip(dto, oldTrip);
         oldTrip.setDestination(mapService.findOrCreatePlace(dto.destination()));
-        //TODO: compare old and new, check
-        System.out.println(oldTrip.toString());
+
+        tripRepository.persistAndFlush(oldTrip);
         return tripMapper.toTripTimelineDto(oldTrip);
     }
 

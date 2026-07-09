@@ -2,8 +2,6 @@ package user.controller;
 
 import io.quarkus.security.Authenticated;
 import io.quarkus.security.identity.SecurityIdentity;
-import io.smallrye.jwt.auth.principal.JWTParser;
-import io.smallrye.jwt.auth.principal.ParseException;
 import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -11,16 +9,13 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.SecurityContext;
 import org.eclipse.microprofile.jwt.JsonWebToken;
-import org.mapstruct.ap.shaded.freemarker.core.ReturnInstruction;
 import user.dto.*;
+import user.dto.request.*;
 import user.service.AuthenticationService;
 import user.service.CookieService;
-import user.service.JwtService;
 
 import java.time.Duration;
-import java.time.Instant;
 
 @Path("/auth")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -90,8 +85,9 @@ public class UserController {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         authService.logout(refreshToken);
-        NewCookie cookie = cookieService.clearCookie(REFRESH_TOKEN_NAME);
-        return Response.ok().cookie(cookie).build();
+        NewCookie cookie = cookieService.clearCookie(ACCESS_TOKEN_NAME);
+        NewCookie cookie2 = cookieService.clearCookie(REFRESH_TOKEN_NAME);
+        return Response.ok().cookie(cookie, cookie2).build();
     }
 
     @POST

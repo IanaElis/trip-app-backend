@@ -1,6 +1,6 @@
 package travel.itinerary.dto.response;
 
-import travel.map.dto.LocationDto;
+import travel.location.dto.LocationDto;
 
 import java.time.Instant;
 

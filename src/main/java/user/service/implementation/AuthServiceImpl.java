@@ -11,6 +11,7 @@ import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 import notifications.service.EmailService;
 import user.dto.*;
+import user.dto.request.*;
 import user.entity.*;
 import user.mapper.UserMapper;
 import user.repository.FailedAttemptRepository;
@@ -60,17 +61,13 @@ public class AuthServiceImpl implements AuthenticationService {
         User user = userRepository.findByEmail(dto.email());
         if(user == null){
             registerFailedAttempt(dto.email());
-            System.out.println("user is null");
             throw new UnauthorizedException("Invalid email or password.");
         }
         if(!BcryptUtil.matches(dto.password(), user.getPasswordHash())) {
             registerFailedAttempt(dto.email());
-            System.out.println("password does not match");
             throw new UnauthorizedException("Invalid email or password.");
         }
-
         if(user.getStatus() == Status.BLOCKED) {
-            System.out.println("user is blocked");
             throw new ForbiddenException("User account is blocked.");
         }
 
@@ -92,6 +89,7 @@ public class AuthServiceImpl implements AuthenticationService {
         if(userRepository.existsByUsername(dto.username())) {
             throw new EntityExistsException("Username already used");
         }
+
         String hashedPassword = BcryptUtil.bcryptHash(dto.password());
 
         User user = new User();

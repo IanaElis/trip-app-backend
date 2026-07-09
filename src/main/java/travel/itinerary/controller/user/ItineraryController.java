@@ -2,6 +2,7 @@ package travel.itinerary.controller.user;
 
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -35,9 +36,8 @@ public class ItineraryController {
     @POST
     @Path("/accommodation/create")
     public Response createAccommodation(@PathParam("trip_id") Long tripId,
-            CreateAccommodationRequest dto){
-        TimelineItemDto created = null;
-        created = itineraryService
+                                        @Valid CreateAccommodationRequest dto){
+        TimelineItemDto created = itineraryService
                 .addAccommodation(getUserId(), tripId, dto);
         return Response.ok(created).build();
     }
@@ -45,7 +45,7 @@ public class ItineraryController {
     @POST
     @Path("/activity/create")
     public Response createActivity(@PathParam("trip_id") Long tripId,
-                                        CreateActivityRequest dto){
+                                   @Valid CreateActivityRequest dto){
         TimelineItemDto created = itineraryService
                 .addActivity(getUserId(), tripId, dto);
         return Response.ok(created).build();
@@ -54,7 +54,7 @@ public class ItineraryController {
     @POST
     @Path("/transport/create")
     public Response createTransport(@PathParam("trip_id") Long tripId,
-                                        CreateTransportRequest dto){
+                                    @Valid CreateTransportRequest dto){
         TimelineItemDto created = itineraryService
                 .addTransport(getUserId(), tripId, dto);
         return Response.ok(created).build();
@@ -63,7 +63,7 @@ public class ItineraryController {
     @POST
     @Path("/flight/create")
     public Response createFlight(@PathParam("trip_id") Long tripId,
-                                        CreateFlightRequest dto){
+                                 @Valid CreateFlightRequest dto){
         TimelineItemDto created = itineraryService
                 .addFlight(getUserId(), tripId, dto);
         return Response.ok(created).build();
@@ -73,35 +73,39 @@ public class ItineraryController {
     @Path("/accommodation/{id}")
     public Response updateAccommodation(@PathParam("trip_id") Long tripId,
                                         @PathParam("id") Long itemId,
-                                        CreateAccommodationRequest dto){
-        TimelineItemDto updated = itineraryService.updateAccommodation(itemId, dto);
+                                        @Valid CreateAccommodationRequest dto){
+        TimelineItemDto updated = itineraryService.updateAccommodation(getUserId(),
+                tripId, itemId, dto);
         return Response.ok(updated).build();
     }
 
     @PUT
     @Path("/activity/{id}")
     public Response updateActivity(@PathParam("trip_id") Long tripId,
-                                        @PathParam("id") Long itemId,
-                                        CreateActivityRequest dto){
-        TimelineItemDto updated = itineraryService.updateActivity(itemId, dto);
+                                   @PathParam("id") Long itemId,
+                                   @Valid CreateActivityRequest dto){
+        TimelineItemDto updated = itineraryService.updateActivity(getUserId(),
+                tripId, itemId, dto);
         return Response.ok(updated).build();
     }
 
     @PUT
     @Path("/transport/{id}")
     public Response updateTransport(@PathParam("trip_id") Long tripId,
-                                        @PathParam("id") Long itemId,
-                                        CreateTransportRequest dto){
-        TimelineItemDto updated = itineraryService.updateTransport(itemId, dto);
+                                    @PathParam("id") Long itemId,
+                                    @Valid CreateTransportRequest dto){
+        TimelineItemDto updated = itineraryService.updateTransport(getUserId(),
+                tripId, itemId, dto);
         return Response.ok(updated).build();
     }
 
     @PUT
     @Path("/flight/{id}")
     public Response updateFlight(@PathParam("trip_id") Long tripId,
-                                        @PathParam("id") Long itemId,
-                                        CreateFlightRequest dto){
-        TimelineItemDto updated = itineraryService.updateFlight(itemId, dto);
+                                 @PathParam("id") Long itemId,
+                                 @Valid CreateFlightRequest dto){
+        TimelineItemDto updated = itineraryService.updateFlight(getUserId(),
+                tripId, itemId, dto);
         return Response.ok(updated).build();
     }
 
@@ -109,33 +113,41 @@ public class ItineraryController {
     @Path("/{id}")
     public Response deleteItineraryItem(@PathParam("trip_id") Long tripId,
                                         @PathParam("id") Long itemId) {
-        itineraryService.deleteItem(itemId);
+        itineraryService.deleteItem(getUserId(), tripId, itemId);
         return Response.noContent().build();
     }
 
     @GET
     @Path("/accommodation/{id}")
-    public Response getAccommodation(@PathParam("id") Long itemId){
-        FullAccommodationDto result = itineraryService.getAccommodationById(itemId);
+    public Response getAccommodation(@PathParam("trip_id") Long tripId,
+                                     @PathParam("id") Long itemId){
+        FullAccommodationDto result = itineraryService.getAccommodationById(getUserId(),
+                tripId, itemId);
         return Response.ok(result).build();
     }
 
     @GET
     @Path("/activity/{id}")
-    public Response getActivity(@PathParam("id") Long itemId){
-        FullActivityDto result = itineraryService.getActivityById(itemId);
+    public Response getActivity(@PathParam("trip_id") Long tripId,
+                                @PathParam("id") Long itemId){
+        FullActivityDto result = itineraryService.getActivityById(getUserId(),
+                tripId, itemId);
         return Response.ok(result).build();
     }
     @GET
     @Path("/transport/{id}")
-    public Response getTransport(@PathParam("id") Long itemId){
-        FullTransportDto result = itineraryService.getTransportById(itemId);
+    public Response getTransport(@PathParam("trip_id") Long tripId,
+                                 @PathParam("id") Long itemId){
+        FullTransportDto result = itineraryService.getTransportById(getUserId(),
+                tripId, itemId);
         return Response.ok(result).build();
     }
     @GET
     @Path("/flight/{id}")
-    public Response getFlight(@PathParam("id") Long itemId){
-        FullFlightDto result = itineraryService.getFlightById(itemId);
+    public Response getFlight(@PathParam("trip_id") Long tripId,
+                              @PathParam("id") Long itemId){
+        FullFlightDto result = itineraryService.getFlightById(getUserId(),
+                tripId, itemId);
         return Response.ok(result).build();
     }
 

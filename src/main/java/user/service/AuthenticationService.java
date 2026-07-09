@@ -1,7 +1,7 @@
 package user.service;
 
-import jakarta.ws.rs.core.NewCookie;
 import user.dto.*;
+import user.dto.request.*;
 
 public interface AuthenticationService {
     TokenPair login(LoginDto dto);

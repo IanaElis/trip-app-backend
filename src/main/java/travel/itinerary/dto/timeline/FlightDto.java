@@ -1,7 +1,7 @@
 package travel.itinerary.dto.timeline;
 
 import travel.itinerary.dto.AirlineDto;
-import travel.map.dto.AirportDto;
+import travel.location.dto.AirportDto;
 
 public record FlightDto (
         String confirmationNumber,

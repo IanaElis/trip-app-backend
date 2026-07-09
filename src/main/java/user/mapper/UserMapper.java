@@ -5,6 +5,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.NullValueMappingStrategy;
 import user.dto.AdminUserDto;
 import user.dto.UserDto;
+import user.entity.Status;
 import user.entity.User;
 
 import java.util.List;
@@ -14,6 +15,12 @@ public interface UserMapper {
 
     UserDto toDto(User user);
     List<UserDto> toDto(List<User> users);
+
+    @Mapping(target = "blocked", source = "status")
     AdminUserDto toAdminUserDto(User user);
     List<AdminUserDto> toAdminUserDto(List<User> users);
+
+    default boolean mapStatusToBlocked(Status status) {
+        return status == Status.BLOCKED;
+    }
 }

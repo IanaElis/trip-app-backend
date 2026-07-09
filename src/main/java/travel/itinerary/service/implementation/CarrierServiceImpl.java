@@ -17,6 +17,7 @@ import travel.itinerary.repository.CompanyRepository;
 import travel.itinerary.service.CarrierService;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @ApplicationScoped
@@ -45,6 +46,7 @@ class CarrierServiceImpl implements CarrierService {
             }
             company.setType(type);
         }
+        companyRepository.persist(company);
         return company;
     }
 
@@ -53,6 +55,7 @@ class CarrierServiceImpl implements CarrierService {
     @Override
     public AirlineDto createAirline(AirlineDto airline) {
         Airline entity = carrierMapper.toAirlineEntity(airline);
+        airlineRepository.persist(entity);
         return carrierMapper.toAirlineDto(entity);
     }
 
@@ -68,6 +71,7 @@ class CarrierServiceImpl implements CarrierService {
         }
         if(dto.type()!=null && dto.type() != entity.getType())
             entity.setType(dto.type());
+        companyRepository.persist(entity);
         return carrierMapper.toCompanyDto(entity);
     }
 
@@ -82,6 +86,7 @@ class CarrierServiceImpl implements CarrierService {
         }
         if(dto.iataCode()!=null && !dto.iataCode().equals(entity.getIataCode()))
             entity.setIataCode(dto.iataCode());
+        airlineRepository.persist(entity);
         return null;
     }
 
@@ -129,6 +134,9 @@ class CarrierServiceImpl implements CarrierService {
     @Override
     public List<CompanyDto> getAllCompaniesByType(CompanyType type) {
         List<Company> list = companyRepository.findByType(type);
+        if(list == null){
+            return Collections.emptyList();
+        }
         return carrierMapper.toCompanyDtoList(list);
     }
 

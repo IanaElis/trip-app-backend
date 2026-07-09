@@ -8,9 +8,12 @@ import jakarta.ws.rs.core.Response;
 import travel.itinerary.dto.AirlineDto;
 import travel.itinerary.dto.CompanyDto;
 import travel.itinerary.entity.carrier.CompanyType;
+import travel.itinerary.entity.transport.TransportType;
 import travel.itinerary.service.CarrierService;
 
 import java.util.List;
+
+import static travel.itinerary.entity.transport.TransportType.TRAIN;
 
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
@@ -29,8 +32,13 @@ public class CarrierController {
 
     @GET
     @Path("companies")
-    public Response getCompaniesByType(@QueryParam("type") CompanyType type){
-        List<CompanyDto> companyDtoList = carrierService.getAllCompaniesByType(type);
+    public Response getCompaniesByType(@QueryParam("type") TransportType type){
+        CompanyType companyType = switch (type) {
+            case TRAIN -> CompanyType.RAIL;
+            case BUS -> CompanyType.BUS;
+            case CAR -> CompanyType.RENTAL;
+        };
+        List<CompanyDto> companyDtoList = carrierService.getAllCompaniesByType(companyType);
         return Response.ok(companyDtoList).build();
     }
 }

@@ -1,8 +1,8 @@
-package travel.map.repository;
+package travel.location.repository;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
-import travel.map.entity.Airport;
+import travel.location.entity.Airport;
 
 import java.util.Optional;
 
@@ -12,7 +12,7 @@ public class AirportRepository implements PanacheRepository<Airport> {
         return find("iataCode", iataCode).firstResultOptional();
     }
 
-    public Airport findByNameAndCity(String name, String city) {
-        return find("place.name = ?1 AND place.city = ?2", name, city).firstResult();
+    public Airport findByName(String name) {
+        return find("place.name = ?1", name).firstResult();
     }
 }

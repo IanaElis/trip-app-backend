@@ -1,15 +1,18 @@
-package travel.map.service;
+package travel.location.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
-import travel.map.dto.PlaceDto;
-import travel.map.entity.Airport;
-import travel.map.entity.Place;
-import travel.map.mapper.PlaceMapper;
-import travel.map.repository.AirportRepository;
-import travel.map.repository.PlaceRepository;
+import travel.location.dto.PlaceDto;
+import travel.location.entity.Airport;
+import travel.location.entity.Place;
+import travel.location.mapper.PlaceMapper;
+import travel.location.repository.AirportRepository;
+import travel.location.repository.PlaceRepository;
+
+import java.time.Instant;
+import java.util.Date;
 
 @ApplicationScoped
 class MapServiceImpl implements MapService {
@@ -24,10 +27,15 @@ class MapServiceImpl implements MapService {
     @Transactional
     @Override
     public Place findOrCreatePlace(PlaceDto placeDto) {
+        if(placeDto.googlePlaceId() == null){
+            throw new IllegalArgumentException();
+        }
+
         Place place = placeRepository.findByGoogleId(placeDto.googlePlaceId());
         if(place == null) {
-            place = placeMapper.toPlaceEntity(placeDto);
-            placeRepository.persistAndFlush(place);
+            Place newPlace = placeMapper.toPlaceEntity(placeDto);
+            placeRepository.persistAndFlush(newPlace);
+            return newPlace;
         }
         return place;
     }
@@ -40,8 +48,11 @@ class MapServiceImpl implements MapService {
 
     @Transactional
     @Override
-    public Airport getAirportByNameAndCityAndUpdate(PlaceDto dto) {
-        Airport airport = airportRepository.findByNameAndCity(dto.name(), dto.city());
+    public Airport getAirportByNameAndUpdate(PlaceDto dto) {
+        if(dto.city() == null){
+            throw new IllegalArgumentException();
+        }
+        Airport airport = airportRepository.findByName(dto.name().trim());
         if(airport == null) {
             throw new NotFoundException("Airport not found");
         }

@@ -1,7 +1,7 @@
 package travel.itinerary.entity;
 
 import jakarta.persistence.*;
-import travel.map.entity.Place;
+import travel.location.entity.Place;
 
 import java.time.Instant;
 

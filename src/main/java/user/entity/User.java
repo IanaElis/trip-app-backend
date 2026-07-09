@@ -38,6 +38,9 @@ public class User {
     public User() {
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
     public Long getId(){
         return id;
     }
@@ -90,4 +93,16 @@ public class User {
         this.createdAt = createdAt;
     }
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", passwordHash='" + passwordHash + '\'' +
+                ", username='" + username + '\'' +
+                ", role=" + role +
+                ", status=" + status +
+                ", createdAt=" + createdAt +
+                '}';
+    }
 }

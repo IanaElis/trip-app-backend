@@ -10,7 +10,7 @@ import travel.itinerary.entity.Activity;
 import travel.itinerary.entity.BaseItineraryItem;
 import travel.itinerary.entity.transport.Flight;
 import travel.itinerary.entity.transport.Transport;
-import travel.map.mapper.PlaceMapper;
+import travel.location.mapper.PlaceMapper;
 
 @Mapper(componentModel = "cdi",
         nullValueIterableMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT,
@@ -22,7 +22,6 @@ public interface TimelineMapper {
     @SubclassMapping(source = Flight.class,   target = TimelineItemDto.class)
     @SubclassMapping(source = Accommodation.class, target = TimelineItemDto.class)
     @SubclassMapping(source = Activity.class, target = TimelineItemDto.class)
-
     TimelineItemDto toTimelineItemDto(BaseItineraryItem item);
 
 

@@ -3,11 +3,13 @@ package notifications.service;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import notifications.dto.NotificationJobDto;
+import notifications.dto.NotificationDto;
 import notifications.entity.ChannelType;
-import notifications.entity.NotificationJob;
+import notifications.entity.Notification;
 import notifications.entity.NotificationRule;
 import notifications.entity.NotificationStatus;
+import notifications.repository.NotificationRepository;
+import notifications.repository.NotificationRuleRepository;
 //import notifications.repository.NotificationJobRepository;
 //import notifications.repository.NotificationRuleRepository;
 
@@ -18,17 +20,16 @@ import java.util.List;
 
 @ApplicationScoped
 public class NotificationGenerator {
-//    @Inject
-//    NotificationRuleRepository ruleRepository;
+    @Inject
+    NotificationRuleRepository ruleRepository;
 
-//    @Inject
-//    NotificationJobRepository jobRepository;
+    @Inject
+    NotificationRepository notificationRepository;
 
     @Transactional
-    public void generate(NotificationJobDto dto) {
+    public void generate(NotificationDto dto) {
 
-        List<NotificationRule> rules = new ArrayList<>();
-                //ruleRepository.findByItemType(dto.type());
+        List<NotificationRule> rules = ruleRepository.findByItemType(dto.type());
 
         for (NotificationRule rule : rules) {
             Instant sendAt = dto.eventTime()
@@ -37,7 +38,7 @@ public class NotificationGenerator {
         }
     }
 
-    private void createJob(NotificationJobDto dto,
+    private void createJob(NotificationDto dto,
                            NotificationRule rule, Instant sendAt) {
 
         if (rule.isEnabled()) {
@@ -47,19 +48,19 @@ public class NotificationGenerator {
         }
     }
 
-    private void persist(NotificationJobDto dto, Instant sendAt, ChannelType channel) {
-        NotificationJob job = new NotificationJob();
+    private void persist(NotificationDto dto, Instant sendAt, ChannelType channel) {
+        Notification notification = new Notification();
 
-        job.setUserId(dto.userId());
-        job.setTripId(dto.tripId());
-        job.setItineraryItemId(dto.itineraryItemId());
-        job.setItemType(dto.type());
+        notification.setUserId(dto.userId());
+        notification.setTripId(dto.tripId());
+        notification.setItineraryItemId(dto.itineraryItemId());
+        notification.setItemType(dto.type());
 
-        job.setChannel(channel);
-        job.setSendAt(sendAt);
-        job.setStatus(NotificationStatus.PENDING);
+        notification.setChannel(channel);
+        notification.setSendAt(sendAt);
+        notification.setStatus(NotificationStatus.PENDING);
 
-   //     jobRepository.persist(job);
+        notificationRepository.persist(notification);
     }
 
 }

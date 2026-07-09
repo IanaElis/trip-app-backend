@@ -1,4 +1,4 @@
-package travel.map.dto;
+package travel.location.dto;
 
 public record AirportDto(
         String googlePlaceId,

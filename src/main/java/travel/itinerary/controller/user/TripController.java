@@ -3,6 +3,7 @@ package travel.itinerary.controller.user;
 import io.quarkus.security.Authenticated;
 import io.smallrye.jwt.auth.principal.JWTParser;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -35,14 +36,15 @@ public class TripController {
 
     @POST
     @Path("/")
-    public Response createTrip(CreateTripRequest createTripRequest) {
+    public Response createTrip(@Valid CreateTripRequest createTripRequest) {
         ShortTripDto tripCreated = tripService.createTrip(getUserId(), createTripRequest);
+        System.out.println("Trip created: "+ tripCreated);
         return Response.status(Response.Status.CREATED).entity(tripCreated).build();
     }
 
     @PUT
     @Path("/{trip_id}")
-    public Response updateTrip(@PathParam("trip_id") Long tripId, CreateTripRequest dto){
+    public Response updateTrip(@PathParam("trip_id") Long tripId, @Valid CreateTripRequest dto){
         TripDto tripUpdated = tripService.updateTrip(getUserId(), tripId, dto);
         return Response.ok(tripUpdated).build();
     }

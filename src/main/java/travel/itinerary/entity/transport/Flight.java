@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import travel.itinerary.entity.BaseItineraryItem;
 import travel.itinerary.entity.Trip;
 import travel.itinerary.entity.carrier.Airline;
-import travel.map.entity.Airport;
+import travel.location.entity.Airport;
 
 import java.time.Instant;
 

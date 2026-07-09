@@ -7,7 +7,7 @@ import org.mapstruct.NullValueMappingStrategy;
 import travel.itinerary.dto.request.CreateActivityRequest;
 import travel.itinerary.dto.response.FullActivityDto;
 import travel.itinerary.entity.Activity;
-import travel.map.mapper.PlaceMapper;
+import travel.location.mapper.PlaceMapper;
 
 @Mapper(componentModel = "cdi",
         nullValueIterableMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT,
@@ -19,6 +19,7 @@ public interface ActivityMapper {
     Activity toEntity(CreateActivityRequest dto);
 
     @Mapping(target = "trip", ignore = true)
+    @Mapping(target = "location", ignore = true)
     void updateEntity(CreateActivityRequest dto, @MappingTarget Activity entity);
 
     @Mapping(target = "tripId", source = "trip.id")

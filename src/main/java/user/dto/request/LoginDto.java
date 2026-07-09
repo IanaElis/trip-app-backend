@@ -1,11 +1,14 @@
-package user.dto;
+package user.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-public record ForgotPasswordDto(
+public record LoginDto(
         @Email(message = "Invalid email format")
         @NotBlank
-        String email
+        String email,
+
+        @NotBlank
+        String password
 ) {
 }

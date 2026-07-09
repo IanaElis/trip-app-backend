@@ -29,7 +29,6 @@ public class AdminServiceImpl implements AdminService {
         if(user.getStatus() == Status.ACTIVE) {
             user.setStatus(Status.BLOCKED);
         }
-        //TODO: check persistence
         return userMapper.toAdminUserDto(user);
     }
 
@@ -40,7 +39,6 @@ public class AdminServiceImpl implements AdminService {
         if(user.getStatus() == Status.BLOCKED) {
             user.setStatus(Status.ACTIVE);
         }
-        //TODO: check persistence
         return userMapper.toAdminUserDto(user);
     }
 
@@ -58,7 +56,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public List<AdminUserDto> getAllUsers() {
-        List<User> userList = userRepository.listAll(Sort.descending("createdAt"));
+        List<User> userList = userRepository.listAll(Sort.descending("id"));
         return userMapper.toAdminUserDto(userList);
     }
 

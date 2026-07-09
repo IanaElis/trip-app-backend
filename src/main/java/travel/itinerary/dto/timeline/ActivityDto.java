@@ -1,6 +1,6 @@
 package travel.itinerary.dto.timeline;
 
-import travel.map.dto.LocationDto;
+import travel.location.dto.LocationDto;
 
 public record ActivityDto(
         String title,

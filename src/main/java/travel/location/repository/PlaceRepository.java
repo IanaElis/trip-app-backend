@@ -1,8 +1,8 @@
-package travel.map.repository;
+package travel.location.repository;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
-import travel.map.entity.Place;
+import travel.location.entity.Place;
 
 @ApplicationScoped
 public class PlaceRepository implements PanacheRepository<Place> {

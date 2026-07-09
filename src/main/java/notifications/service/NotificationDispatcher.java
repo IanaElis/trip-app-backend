@@ -4,9 +4,9 @@ import io.quarkus.scheduler.Scheduled;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import notifications.entity.NotificationJob;
+import notifications.entity.Notification;
 import notifications.entity.NotificationStatus;
-//import notifications.repository.NotificationJobRepository;
+import notifications.repository.NotificationRepository;
 import notifications.sender.NotificationSender;
 import notifications.sender.NotificationSenderFactory;
 
@@ -16,28 +16,26 @@ import java.util.List;
 
 @ApplicationScoped
 public class NotificationDispatcher {
-//
-//    @Inject
-//    NotificationJobRepository repository;
+
+    @Inject
+    NotificationRepository repository;
     @Inject
     NotificationSenderFactory senderFactory;
 
     @Scheduled(every = "1m")
     @Transactional
     void dispatch() {
-        List<NotificationJob> jobs = new ArrayList<>();
-                //repository.findPendingJobsAt(Instant.now());
+        List<Notification> notifications = repository.findPendingJobsAt(Instant.now());
 
-        for (NotificationJob job : jobs) {
+        for (Notification notification : notifications) {
             try {
-                NotificationSender sender = senderFactory.get(job.getChannel());
-                sender.send(job);
-                job.setStatus(NotificationStatus.SENT);
+                NotificationSender sender = senderFactory.get(notification.getChannel());
+                sender.send(notification);
+                notification.setStatus(NotificationStatus.SENT);
             }
             catch (Exception ex) {
-                job.setStatus(NotificationStatus.FAILED);
+                notification.setStatus(NotificationStatus.FAILED);
             }
         }
-
     }
 }

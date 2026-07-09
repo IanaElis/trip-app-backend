@@ -1,7 +1,7 @@
 package travel.itinerary.dto.response;
 
 import travel.itinerary.dto.AirlineDto;
-import travel.map.dto.AirportDto;
+import travel.location.dto.AirportDto;
 
 import java.time.Instant;
 

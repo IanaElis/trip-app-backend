@@ -5,7 +5,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import travel.itinerary.repository.AirlineRepository;
-import travel.map.repository.AirportRepository;
+import travel.location.repository.AirportRepository;
 
 @ApplicationScoped
 public class DatabaseSeeder {

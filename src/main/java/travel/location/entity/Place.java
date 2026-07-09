@@ -1,4 +1,4 @@
-package travel.map.entity;
+package travel.location.entity;
 
 import jakarta.persistence.*;
 

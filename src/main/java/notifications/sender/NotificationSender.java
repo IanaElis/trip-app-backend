@@ -1,9 +1,9 @@
 package notifications.sender;
 
 import notifications.entity.ChannelType;
-import notifications.entity.NotificationJob;
+import notifications.entity.Notification;
 
 public interface NotificationSender {
     ChannelType supports();
-    void send(NotificationJob job);
+    void send(Notification job);
 }

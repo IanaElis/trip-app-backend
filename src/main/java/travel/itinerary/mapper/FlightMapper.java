@@ -6,12 +6,8 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValueMappingStrategy;
 import travel.itinerary.dto.request.CreateFlightRequest;
 import travel.itinerary.dto.response.FullFlightDto;
-import travel.itinerary.dto.timeline.ActivityDto;
-import travel.itinerary.dto.timeline.FlightDto;
-import travel.itinerary.dto.timeline.TimelineItemDto;
-import travel.itinerary.entity.Activity;
 import travel.itinerary.entity.transport.Flight;
-import travel.map.mapper.PlaceMapper;
+import travel.location.mapper.PlaceMapper;
 
 @Mapper(componentModel = "cdi",
         nullValueIterableMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT,

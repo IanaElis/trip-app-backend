@@ -6,7 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import notifications.entity.ChannelType;
-import notifications.entity.NotificationJob;
+import notifications.entity.Notification;
 import notifications.service.EmailService;
 import user.service.UserService;
 
@@ -29,12 +29,12 @@ public class EmailSender implements NotificationSender, EmailService {
     }
 
     @Override
-    public void send(NotificationJob job) {
+    public void send(Notification job) {
         String email = userService.getUserEmail(job.getUserId());
         mailer.send(Mail.withText(email, "Trip reminder", buildMessage(job)));
     }
 
-    private String buildMessage(NotificationJob job) {
+    private String buildMessage(Notification job) {
         return switch (job.getItemType()) {
             case FLIGHT ->
                     "Your flight starts soon. ";

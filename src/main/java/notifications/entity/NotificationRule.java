@@ -2,16 +2,18 @@ package notifications.entity;
 
 import jakarta.persistence.*;
 
-//@Entity
-//@Table(name = "notification_rules")
+@Entity
+@Table(name = "notification_rules")
 public class NotificationRule {
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "item_type",nullable = false, length = 50)
     @Enumerated(EnumType.STRING)
     private TimelineItemType itemType;
 
+    @Column(name = "offset_minutes",nullable = false)
     private Integer offsetMinutes;
 
     private boolean enabled;

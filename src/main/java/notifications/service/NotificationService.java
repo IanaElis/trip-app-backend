@@ -1,11 +1,10 @@
 package notifications.service;
 
-import notifications.dto.NotificationJobDto;
-import travel.itinerary.entity.BaseItineraryItem;
+import notifications.dto.NotificationDto;
 
 public interface NotificationService {
-    void scheduleNotifications(NotificationJobDto dto);
-    void rescheduleNotifications(NotificationJobDto dto);
+    void scheduleNotifications(NotificationDto dto);
+    void rescheduleNotifications(NotificationDto dto);
     void cancelNotifications(Long itineraryItemId);
 
 }

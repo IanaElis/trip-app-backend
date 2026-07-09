@@ -1,13 +1,13 @@
-package travel.map.mapper;
+package travel.location.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValueMappingStrategy;
-import travel.map.dto.AirportDto;
-import travel.map.dto.LocationDto;
-import travel.map.dto.PlaceDto;
-import travel.map.entity.Airport;
-import travel.map.entity.Place;
+import travel.location.dto.AirportDto;
+import travel.location.dto.LocationDto;
+import travel.location.dto.PlaceDto;
+import travel.location.entity.Airport;
+import travel.location.entity.Place;
 
 @Mapper(componentModel = "cdi",
         nullValueIterableMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT)

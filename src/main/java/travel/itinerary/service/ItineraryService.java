@@ -19,18 +19,18 @@ public interface ItineraryService {
     TimelineItemDto addAccommodation(Long userId, Long tripId, CreateAccommodationRequest dto);
     TimelineItemDto addActivity(Long userId, Long tripId, CreateActivityRequest dto);
 
-    TimelineItemDto updateTransport(Long id, CreateTransportRequest dto);
-    TimelineItemDto updateFlight(Long id, CreateFlightRequest dto);
-    TimelineItemDto updateAccommodation(Long id, CreateAccommodationRequest dto);
-    TimelineItemDto updateActivity(Long id, CreateActivityRequest dto);
+    TimelineItemDto updateTransport(Long userId, Long tripId,Long id, CreateTransportRequest dto);
+    TimelineItemDto updateFlight(Long userId, Long tripId,Long id, CreateFlightRequest dto);
+    TimelineItemDto updateAccommodation(Long userId, Long tripId,Long id, CreateAccommodationRequest dto);
+    TimelineItemDto updateActivity(Long userId, Long tripId, Long id, CreateActivityRequest dto);
 
-    void deleteItem(Long id);
+    void deleteItem(Long userId, Long tripId, Long id);
 
     //return full information on every item (item view)
-    FullAccommodationDto getAccommodationById(Long id);
-    FullFlightDto getFlightById(Long id);
-    FullTransportDto getTransportById(Long id);
-    FullActivityDto getActivityById(Long id);
+    FullAccommodationDto getAccommodationById(Long userId, Long tripId, Long id);
+    FullFlightDto getFlightById(Long userId, Long tripId, Long id);
+    FullTransportDto getTransportById(Long userId, Long tripId, Long id);
+    FullActivityDto getActivityById(Long userId, Long tripId, Long id);
 
     FullItineraryDto getItinerary(Long userId, Long tripId);
 
