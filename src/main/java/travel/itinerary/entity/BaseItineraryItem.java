@@ -37,7 +37,9 @@ public abstract class BaseItineraryItem{
     public Long getId() {
         return id;
     }
-
+    public void setId(Long id) {
+        this.id = id;
+    }
     public Trip getTrip() {
         return trip;
     }
@@ -69,4 +71,5 @@ public abstract class BaseItineraryItem{
     public void setNotes(String notes) {
         this.notes = notes;
     }
+
 }

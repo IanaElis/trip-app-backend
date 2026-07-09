@@ -56,7 +56,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public List<AdminUserDto> getAllUsers() {
-        List<User> userList = userRepository.listAll(Sort.descending("id"));
+        List<User> userList = userRepository.listAll(Sort.ascending("id"));
         return userMapper.toAdminUserDto(userList);
     }
 

@@ -35,7 +35,7 @@ import java.util.Collections;
 import java.util.List;
 
 @ApplicationScoped
-class ItineraryServiceImpl implements ItineraryService {
+public class ItineraryServiceImpl implements ItineraryService {
     @Inject
     ItineraryItemRepository itineraryItemRepository;
 

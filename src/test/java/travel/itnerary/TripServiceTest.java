@@ -1,7 +1,5 @@
 package travel.itnerary;
 
-import io.quarkus.security.ForbiddenException;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.NotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,6 +8,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import travel.itinerary.dto.request.CreateTripRequest;
+import travel.itinerary.dto.response.ShortTripDto;
+import travel.itinerary.dto.timeline.TripDto;
 import travel.itinerary.entity.Trip;
 import travel.itinerary.mapper.TripMapper;
 import travel.itinerary.repository.TripRepository;
@@ -17,15 +17,14 @@ import travel.itinerary.service.implementation.TripServiceImpl;
 import travel.location.dto.PlaceDto;
 import travel.location.entity.Place;
 import travel.location.service.MapService;
-import user.entity.User;
 import user.repository.UserRepository;
 
 import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
-import static java.lang.Double.valueOf;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -43,11 +42,14 @@ public class TripServiceTest {
     @Mock
     UserRepository userRepository;
 
+    private final Long USER_ID = 1L;
+    private final Long TRIP_ID = 10L;
     Instant start;
     Instant end;
     PlaceDto destination;
     Place place;
     CreateTripRequest createTripRequest;
+    Trip trip;
 
     @BeforeEach
     void setUp() {
@@ -57,41 +59,83 @@ public class TripServiceTest {
                 "google","name", "address",
                 "city", "country", 2.345, 3.456,
                 "Europe/Paris");
+
         place = new Place();
         place.setGooglePlaceId("google");
         place.setName("Paris");
-        place.setAddress("address");
-        place.setCity("city");
-        place.setCountry("country");
-        place.setLatitude(2.345);
-        place.setLongitude(3.456);
-        place.setTimezoneId("Europe/Paris");
-        createTripRequest = new CreateTripRequest("Paris",
+
+        createTripRequest = new CreateTripRequest("Summer Trip",
                 "description", destination, start, end);
+        trip = new Trip();
+        trip.setId(TRIP_ID);
+        trip.setName(createTripRequest.name());
+        trip.setDescription(createTripRequest.description());
+        trip.setStartDate(createTripRequest.startDate());
+        trip.setEndDate(createTripRequest.endDate());
+        trip.setDestination(place);
     }
 
     @Test
     void createTrip_success() {
-        Long userId = 1L;
-        Trip trip = new Trip();
+        ShortTripDto dto = new ShortTripDto(TRIP_ID, trip.getName(), trip.getStartDate(),
+                trip.getEndDate());
 
         when(tripMapper.toTripEntity(createTripRequest)).thenReturn(trip);
         when(mapService.findOrCreatePlace(destination)).thenReturn(place);
+        when(tripMapper.toTripDto(trip)).thenReturn(dto);
 
-        tripService.createTrip(userId, createTripRequest);
+        ShortTripDto result = tripService.createTrip(USER_ID, createTripRequest);
 
-        verify(tripRepository).persistAndFlush(any(Trip.class));
-        assertEquals(userId, trip.getUserId());
+        assertNotNull(result);
+        assertEquals(dto, result);
+        assertEquals(USER_ID, trip.getUserId());
+        assertEquals(place, trip.getDestination());
+
+        verify(tripRepository).persistAndFlush(trip);
+    }
+
+    @Test
+    void createTrip_nameLengthOne_success() {
+        CreateTripRequest request = new CreateTripRequest("A", "Description",
+                destination, Instant.now(), Instant.now().plusSeconds(60)
+        );
+        Trip trip = new Trip();
+
+        ShortTripDto dto = new ShortTripDto(1L, "A", request.startDate(),
+                request.endDate());
+
+        when(tripMapper.toTripEntity(request)).thenReturn(trip);
+        when(mapService.findOrCreatePlace(destination)).thenReturn(place);
+        when(tripMapper.toTripDto(trip)).thenReturn(dto);
+
+        ShortTripDto result = tripService.createTrip(USER_ID, request);
+
+        assertEquals("A", result.name());
+
+        verify(tripRepository).persistAndFlush(trip);
+    }
+
+    @Test
+    void createTrip_placeAlreadyExists() {
+        when(tripMapper.toTripEntity(createTripRequest)).thenReturn(trip);
+        when(mapService.findOrCreatePlace(destination)).thenReturn(place);
+        when(tripMapper.toTripDto(trip)).thenReturn(new ShortTripDto(TRIP_ID,
+                        trip.getName(), trip.getStartDate(), trip.getEndDate()));
+
+        tripService.createTrip(USER_ID, createTripRequest);
+
+        verify(mapService).findOrCreatePlace(destination);
+
+        assertEquals(place, trip.getDestination());
     }
 
     @Test
     void updateTrip_success() {
-        Long userId = 1L;
         Trip trip = new Trip();
-        trip.setUserId(userId);
+        trip.setUserId(USER_ID);
         CreateTripRequest dto = createTripRequest;
 
-        when(tripRepository.findByIdAndUserIdOptional(5L, userId)).thenReturn(Optional.of(trip));
+        when(tripRepository.findByIdAndUserIdOptional(TRIP_ID, USER_ID)).thenReturn(Optional.of(trip));
         when(mapService.findOrCreatePlace(destination)).thenReturn(place);
 
         doAnswer(invocation -> {
@@ -102,31 +146,72 @@ public class TripServiceTest {
             return null;
         }).when(tripMapper).updateTrip(createTripRequest, trip);
 
-
-        tripService.updateTrip(userId, 5L, dto);
+        tripService.updateTrip(USER_ID, TRIP_ID, dto);
 
         assertEquals(createTripRequest.name(), trip.getName());
     }
 
     @Test
+    void updateTrip_tripDoesNotExist() {
+        when(tripRepository.findByIdAndUserIdOptional(TRIP_ID, USER_ID))
+                .thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class,
+                () -> tripService.updateTrip(USER_ID, TRIP_ID, createTripRequest)
+        );
+
+        verify(tripRepository, never()).persistAndFlush(any());
+    }
+
+    @Test
+    void getTripById_success_mapDto() {
+        TripDto dto = new TripDto(TRIP_ID, USER_ID, trip.getName(),
+                trip.getDescription(), null, trip.getStartDate(), trip.getEndDate()
+        );
+
+        when(tripRepository.findByIdAndUserIdOptional(TRIP_ID, USER_ID))
+                .thenReturn(Optional.of(trip));
+        when(tripMapper.toTripTimelineDto(trip)).thenReturn(dto);
+
+        TripDto result = tripService.getTripById(USER_ID, TRIP_ID);
+
+        assertEquals(dto, result);
+
+        verify(tripMapper).toTripTimelineDto(trip);
+    }
+
+    @Test
     void deleteTrip_success() {
-        Trip trip = new Trip();
-        Long userId = 1L;
-        trip.setUserId(userId);
+        when(tripRepository.deleteByIdAndUserId(TRIP_ID, USER_ID)).thenReturn(true);
 
-        when(tripRepository.deleteByIdAndUserId(10L, 1L)).thenReturn(true);
+        tripService.deleteTrip(USER_ID, TRIP_ID);
 
-        tripService.deleteTrip(userId, 10L);
-
-        verify(tripRepository).deleteByIdAndUserId(10L,userId);
+        verify(tripRepository).deleteByIdAndUserId(TRIP_ID, USER_ID);
     }
 
     @Test
     void updateTrip_tripBelongsToAnotherUser() {
-        when(tripRepository.findByIdAndUserIdOptional(1L,2L))
+        when(tripRepository.findByIdAndUserIdOptional(TRIP_ID,2L))
                 .thenReturn(Optional.empty());
 
         assertThrows(NotFoundException.class,
-                () -> tripService.updateTrip(2L, 1L, createTripRequest));
+                () -> tripService.updateTrip(2L, TRIP_ID, createTripRequest));
+    }
+
+    @Test
+    void getAllTrips_userHasNoTrips() {
+        List<Trip> trips = Collections.emptyList();
+        List<ShortTripDto> dtos = Collections.emptyList();
+
+        when(tripRepository.findAllByUserId(USER_ID)).thenReturn(trips);
+        when(tripMapper.toTripDtoList(trips)).thenReturn(dtos);
+
+        List<ShortTripDto> result = tripService.getAllTrips(USER_ID);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+
+        verify(tripRepository).findAllByUserId(USER_ID);
+        verify(tripMapper).toTripDtoList(trips);
     }
 }

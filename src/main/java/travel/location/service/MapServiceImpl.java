@@ -3,6 +3,7 @@ package travel.location.service;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 import travel.location.dto.PlaceDto;
 import travel.location.entity.Airport;
@@ -27,10 +28,6 @@ class MapServiceImpl implements MapService {
     @Transactional
     @Override
     public Place findOrCreatePlace(PlaceDto placeDto) {
-        if(placeDto.googlePlaceId() == null){
-            throw new IllegalArgumentException();
-        }
-
         Place place = placeRepository.findByGoogleId(placeDto.googlePlaceId());
         if(place == null) {
             Place newPlace = placeMapper.toPlaceEntity(placeDto);
@@ -50,7 +47,7 @@ class MapServiceImpl implements MapService {
     @Override
     public Airport getAirportByNameAndUpdate(PlaceDto dto) {
         if(dto.city() == null){
-            throw new IllegalArgumentException();
+            throw new BadRequestException("City not found");
         }
         Airport airport = airportRepository.findByName(dto.name().trim());
         if(airport == null) {
