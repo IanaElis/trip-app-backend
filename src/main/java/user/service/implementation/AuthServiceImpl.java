@@ -8,8 +8,12 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityExistsException;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.ClientErrorException;
+import jakarta.ws.rs.NotAcceptableException;
 import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.core.Response;
 import notifications.service.EmailService;
+import user.TooManyRequestsException;
 import user.dto.*;
 import user.dto.request.*;
 import user.entity.*;
@@ -25,6 +29,7 @@ import user.service.RefreshTokenGenerator;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.TooManyListenersException;
 
 @ApplicationScoped
 public class AuthServiceImpl implements AuthenticationService {
@@ -39,7 +44,6 @@ public class AuthServiceImpl implements AuthenticationService {
     RefreshTokenRepository refreshTokenRepository;
     @Inject
     EmailService emailService;
-
 
     @Inject
     JwtService jwtService;
@@ -84,10 +88,10 @@ public class AuthServiceImpl implements AuthenticationService {
     @Override
     public TokenPair register(RegisterDto dto){
         if(userRepository.existsByEmail(dto.email())) {
-            throw new EntityExistsException("Email already used"); //?
+            throw new ClientErrorException("Email already in use", Response.Status.CONFLICT);
         }
         if(userRepository.existsByUsername(dto.username())) {
-            throw new EntityExistsException("Username already used");
+            throw new ClientErrorException("Username already in use", Response.Status.CONFLICT);
         }
 
         String hashedPassword = BcryptUtil.bcryptHash(dto.password());
@@ -121,7 +125,7 @@ public class AuthServiceImpl implements AuthenticationService {
         User user = userRepository.findById(oldToken.getUser().getId());
 
         if (user == null || user.getStatus() == Status.BLOCKED) {
-            throw new UnauthorizedException("User invalid or blocked");
+            throw new ForbiddenException("User invalid or blocked");
         }
 
         oldToken.setRevoked(true);
@@ -187,9 +191,7 @@ public class AuthServiceImpl implements AuthenticationService {
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         user.setPasswordHash(BcryptUtil.bcryptHash(dto.newPassword()));
-       // userRepository.persistAndFlush(user);
         passwordResetTokenRepository.delete(token);
-      //  passwordResetTokenRepository.persist(token);
     }
 
     @Transactional
@@ -205,13 +207,17 @@ public class AuthServiceImpl implements AuthenticationService {
         if(dto.username() != null){
             user.setUsername(dto.username());
         }
-        if (dto.currentPassword() == null || dto.newPassword() == null) {
-            throw new BadRequestException("Both password fields are required");
+
+        if (dto.currentPassword() != null || dto.newPassword() != null) {
+
+            if (dto.currentPassword() == null || dto.newPassword() == null) {
+                throw new BadRequestException("Both password fields are required");
+            }
+            if (!BcryptUtil.matches(dto.currentPassword(), user.getPasswordHash())) {
+                throw new UnauthorizedException("Current password does not match");
+            }
+            user.setPasswordHash(BcryptUtil.bcryptHash(dto.newPassword()));
         }
-        if(!BcryptUtil.matches(dto.currentPassword(), user.getPasswordHash())){
-            throw new UnauthorizedException("Current password does not match");
-        }
-        user.setPasswordHash(BcryptUtil.bcryptHash(dto.newPassword()));
 
         return userMapper.toDto(user);
     }
@@ -242,7 +248,7 @@ public class AuthServiceImpl implements AuthenticationService {
             return;
         }
         if (attempt.getAttempts() >= MAX_ATTEMPTS) {
-            throw new UnauthorizedException(
+            throw new TooManyRequestsException(
                     "Too many failed login attempts. Try again in 10 minutes.");
         }
     }

@@ -13,7 +13,6 @@ import user.service.UserService;
 
 @ApplicationScoped
 public class EmailSender implements NotificationSender, EmailService {
-
     @ConfigProperty(name = "frontend.url")
     String frontendUrl;
 
@@ -37,7 +36,7 @@ public class EmailSender implements NotificationSender, EmailService {
     private String buildMessage(Notification job) {
         return switch (job.getItemType()) {
             case FLIGHT ->
-                    "Your flight starts soon. ";
+                    "Your flight starts soon.";
             case ACCOMMODATION ->
                     "Your hotel check-in is soon.";
             case TRANSPORT ->
@@ -54,9 +53,7 @@ public class EmailSender implements NotificationSender, EmailService {
                 Hello,
                 Someone requested a password reset for your account.
                 Click the link below to choose a new password:
-                
                 %s
-                
                 This link expires in 15 minutes.
                 If you didn't request this reset, you can safely ignore this email.
                 Trip Planner

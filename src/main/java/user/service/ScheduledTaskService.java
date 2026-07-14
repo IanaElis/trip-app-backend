@@ -15,7 +15,6 @@ public class ScheduledTaskService {
     @Transactional
     void cleanupExpiredTokens() {
         tokenRepository.deleteExpiredTokens();
-
     }
 }
 //  if (deleted > 0) {

@@ -83,4 +83,15 @@ public class Flight extends BaseItineraryItem {
     public void setFlightNumber(String flightNumber) {
         this.flightNumber = flightNumber;
     }
+
+    @Override
+    public String toString() {
+        return "Flight{" +
+                "confirmationNumber='" + confirmationNumber + '\'' +
+                ", airline=" + airline +
+                ", departureAirport=" + departureAirport +
+                ", arrivalAirport=" + arrivalAirport +
+                ", flightNumber='" + flightNumber + '\'' +
+                '}';
+    }
 }

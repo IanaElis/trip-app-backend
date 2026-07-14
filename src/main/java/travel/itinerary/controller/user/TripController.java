@@ -56,18 +56,6 @@ public class TripController {
         return Response.ok(result).build();
     }
 
-//    @GET
-//    @Path("/{trip_id}")
-//    public Response getTrip(@PathParam("trip_id") Long tripId) {
-//        FullItineraryDto result = null;
-//        try {
-//            result = itineraryService.getItinerary(getUserId(), tripId);
-//        }catch (Exception e){
-//            System.out.println(e.getMessage());
-//        }
-//        return Response.ok(result).build();
-//    }
-
     @GET
     public Response getAllTripsForUser() {
         List<ShortTripDto> result = tripService.getAllTrips(getUserId());
@@ -80,5 +68,4 @@ public class TripController {
         tripService.deleteTrip(getUserId(), tripId);
         return Response.noContent().build();
     }
-
 }

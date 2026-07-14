@@ -48,6 +48,7 @@ public class TripServiceImpl implements TripService {
         return tripMapper.toTripTimelineDto(oldTrip);
     }
 
+    @Transactional
     @Override
     public void deleteTrip(Long userId, Long tripId) {
         if(!tripRepository.deleteByIdAndUserId(tripId, userId)) {

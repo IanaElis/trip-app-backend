@@ -159,10 +159,10 @@ public class ItineraryController {
     }
 
     @GET
-    @Path("/report")
-    public Response getReport(@PathParam("trip_id") Long tripId){
-        ReportDto report = itineraryService.getReport(getUserId(), tripId);
-        return Response.ok(report).build();
+    @Path("/summary")
+    public Response getSummary(@PathParam("trip_id") Long tripId){
+        SummaryDto summary = itineraryService.getSummary(getUserId(), tripId);
+        return Response.ok(summary).build();
     }
 
 

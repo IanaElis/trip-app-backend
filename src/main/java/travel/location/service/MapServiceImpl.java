@@ -12,9 +12,6 @@ import travel.location.mapper.PlaceMapper;
 import travel.location.repository.AirportRepository;
 import travel.location.repository.PlaceRepository;
 
-import java.time.Instant;
-import java.util.Date;
-
 @ApplicationScoped
 class MapServiceImpl implements MapService {
     @Inject
@@ -55,7 +52,6 @@ class MapServiceImpl implements MapService {
         }
 
         Place place = airport.getPlace();
-
         place.setGooglePlaceId(dto.googlePlaceId());
         place.setAddress(dto.address());
         place.setTimezoneId(dto.timezoneId());

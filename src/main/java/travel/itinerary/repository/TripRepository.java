@@ -19,6 +19,6 @@ public class TripRepository implements PanacheRepository<Trip> {
     }
 
     public List<Trip> findAllByUserId(Long userId){
-        return find("userId =?1 ORDER BY startDate desc", userId).list();
+        return find("userId =?1 ORDER BY startDate asc", userId).list();
     }
 }

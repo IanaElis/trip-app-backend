@@ -4,7 +4,7 @@ import travel.itinerary.dto.timeline.TripDto;
 
 import java.util.List;
 
-public record ReportDto(
+public record SummaryDto(
         TripDto trip,
         List<FullItineraryItemDto> items
 ) {

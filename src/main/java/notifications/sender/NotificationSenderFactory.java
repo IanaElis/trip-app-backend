@@ -1,6 +1,7 @@
 package notifications.sender;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import notifications.entity.ChannelType;
 
 import java.util.HashMap;
@@ -13,6 +14,11 @@ public class NotificationSenderFactory {
 
     public void initializeMap(){
         senders.put(ChannelType.EMAIL, new EmailSender());
+    }
+
+    @Inject
+    public NotificationSenderFactory(EmailSender emailSender) {
+        senders.put(ChannelType.EMAIL, emailSender);
     }
 
     public NotificationSender get(ChannelType type) {

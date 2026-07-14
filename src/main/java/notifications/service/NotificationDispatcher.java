@@ -23,19 +23,24 @@ public class NotificationDispatcher {
     NotificationSenderFactory senderFactory;
 
     @Scheduled(every = "1m")
-    @Transactional
     void dispatch() {
         List<Notification> notifications = repository.findPendingJobsAt(Instant.now());
 
         for (Notification notification : notifications) {
-            try {
-                NotificationSender sender = senderFactory.get(notification.getChannel());
-                sender.send(notification);
-                notification.setStatus(NotificationStatus.SENT);
-            }
-            catch (Exception ex) {
-                notification.setStatus(NotificationStatus.FAILED);
-            }
+            processNotification(notification.getId());
+        }
+    }
+
+    @Transactional
+    void processNotification(Long id) {
+        Notification notification = repository.findById(id);
+
+        try {
+            NotificationSender sender = senderFactory.get(notification.getChannel());
+            sender.send(notification);
+            notification.setStatus(NotificationStatus.SENT);
+        } catch (Exception e) {
+            notification.setStatus(NotificationStatus.FAILED);
         }
     }
 }

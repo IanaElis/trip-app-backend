@@ -3,7 +3,6 @@ package travel.itinerary.service.implementation;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 import notifications.dto.NotificationDto;
 import notifications.entity.TimelineItemType;
@@ -30,6 +29,8 @@ import travel.location.entity.Airport;
 import travel.location.service.MapService;
 
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -61,8 +62,9 @@ public class ItineraryServiceImpl implements ItineraryService {
     @Inject
     NotificationService notificationService;
 
-    private boolean datesOutsideTripRange(Trip trip, Instant start, Instant end) {
-        return start.isBefore(trip.getStartDate()) || end.isAfter(trip.getEndDate());
+    public Instant eventZonedTime(ZoneId zone, Instant eventStartTime) {
+        ZonedDateTime event = eventStartTime.atZone(zone);
+        return event.toInstant();
     }
 
 
@@ -71,14 +73,10 @@ public class ItineraryServiceImpl implements ItineraryService {
     public TimelineItemDto addTransport(Long userId, Long tripId,
                                         CreateTransportRequest dto) {
         Trip trip = tripService.getTripClassById(userId, tripId);
-        if(datesOutsideTripRange(trip, dto.startDateTime(), dto.endDateTime())) {
-            throw new BadRequestException("Item dates must be within trip dates");
-        }
-
         Transport transport = transportMapper.toEntity(dto);
         transport.setTrip(trip);
 
-        Company c = null;
+        Company c;
         if(dto.companyId() == null) {
             c = carrierService.getOrCreateCompany(dto.companyName(), dto.type());
         }
@@ -90,9 +88,14 @@ public class ItineraryServiceImpl implements ItineraryService {
         transport.setArrivalLocation(mapService.findOrCreatePlace(dto.arrivalLocation()));
 
         itineraryItemRepository.persistAndFlush(transport);
+
+        ZoneId zone = ZoneId.of(transport.getDepartureLocation().getTimezoneId());
+        Instant time = eventZonedTime(zone, transport.getStartDateTime());
+
         notificationService.scheduleNotifications(
                 new NotificationDto(userId, tripId, transport.getId(),
-                        TimelineItemType.TRANSPORT, transport.getStartDateTime()));
+                        TimelineItemType.TRANSPORT, time));
+
         return timelineMapper.toTimelineItemDto(transport);
     }
 
@@ -101,9 +104,6 @@ public class ItineraryServiceImpl implements ItineraryService {
     public TimelineItemDto addFlight(Long userId, Long tripId,
                                      CreateFlightRequest dto) {
         Trip trip = tripService.getTripClassById(userId, tripId);
-        if(datesOutsideTripRange(trip, dto.startDateTime(), dto.endDateTime())) {
-            throw new BadRequestException("Item dates must be within trip dates");
-        }
         Flight flight = flightMapper.toEntity(dto);
         flight.setTrip(trip);
 
@@ -122,19 +122,21 @@ public class ItineraryServiceImpl implements ItineraryService {
         flight.setArrivalAirport(arrivalAirport);
 
         itineraryItemRepository.persistAndFlush(flight);
+
+        ZoneId zone = ZoneId.of(flight.getDepartureAirport().getPlace().getTimezoneId());
+        Instant time = eventZonedTime(zone, flight.getStartDateTime());
+
         notificationService.scheduleNotifications(
                 new NotificationDto(userId, tripId, flight.getId(),
-                        TimelineItemType.FLIGHT, flight.getStartDateTime()));
+                        TimelineItemType.FLIGHT, time));
         return timelineMapper.toTimelineItemDto(flight);
     }
 
     @Transactional
     @Override
-    public TimelineItemDto addAccommodation(Long userId, Long tripId, CreateAccommodationRequest dto) {
+    public TimelineItemDto addAccommodation(Long userId, Long tripId,
+                                            CreateAccommodationRequest dto) {
         Trip trip = tripService.getTripClassById(userId, tripId);
-        if(datesOutsideTripRange(trip, dto.startDateTime(), dto.endDateTime())) {
-            throw new BadRequestException("Item dates must be within trip dates");
-        }
         Accommodation accommodation = accommodationMapper.toEntity(dto);
 
         accommodation.setTrip(trip);
@@ -142,9 +144,12 @@ public class ItineraryServiceImpl implements ItineraryService {
 
         itineraryItemRepository.persistAndFlush(accommodation);
 
+        ZoneId zone = ZoneId.of(accommodation.getLocation().getTimezoneId());
+        Instant time = eventZonedTime(zone, accommodation.getStartDateTime());
+
         notificationService.scheduleNotifications(
                 new NotificationDto(userId, tripId, accommodation.getId(),
-                        TimelineItemType.ACCOMMODATION, accommodation.getStartDateTime()));
+                        TimelineItemType.ACCOMMODATION, time));
 
         return timelineMapper.toTimelineItemDto(accommodation);
     }
@@ -154,9 +159,6 @@ public class ItineraryServiceImpl implements ItineraryService {
     public TimelineItemDto addActivity(Long userId, Long tripId,
                                        CreateActivityRequest dto) {
         Trip trip = tripService.getTripClassById(userId, tripId);
-        if(datesOutsideTripRange(trip, dto.startDateTime(), dto.endDateTime())) {
-            throw new BadRequestException("Item dates must be within trip dates");
-        }
         Activity activity = activityMapper.toEntity(dto);
 
         activity.setTrip(trip);
@@ -164,9 +166,12 @@ public class ItineraryServiceImpl implements ItineraryService {
 
         itineraryItemRepository.persistAndFlush(activity);
 
+        ZoneId zone = ZoneId.of(activity.getLocation().getTimezoneId());
+        Instant time = eventZonedTime(zone, activity.getStartDateTime());
+
         notificationService.scheduleNotifications(
                 new NotificationDto(userId, tripId, activity.getId(),
-                        TimelineItemType.ACTIVITY, activity.getStartDateTime()));
+                        TimelineItemType.ACTIVITY, time));
         return timelineMapper.toTimelineItemDto(activity);
     }
 
@@ -174,11 +179,6 @@ public class ItineraryServiceImpl implements ItineraryService {
     @Override
     public TimelineItemDto updateTransport(Long userId, Long tripId, Long id,
                                            CreateTransportRequest dto) {
-        Trip trip = tripService.getTripClassById(userId, tripId);
-        if(datesOutsideTripRange(trip, dto.startDateTime(), dto.endDateTime())) {
-            throw new BadRequestException("Item dates must be within trip dates");
-        }
-
         Transport entity = (Transport) itineraryItemRepository
                 .findByIdAndUserIdAndTripIdOptional(id, userId, tripId)
                 .orElseThrow(() -> new NotFoundException("Item not found"));
@@ -205,9 +205,12 @@ public class ItineraryServiceImpl implements ItineraryService {
 
         itineraryItemRepository.persistAndFlush(entity);
 
+        ZoneId zone = ZoneId.of(entity.getDepartureLocation().getTimezoneId());
+        Instant time = eventZonedTime(zone, entity.getStartDateTime());
+
         notificationService.rescheduleNotifications(
                 new NotificationDto(userId, tripId, entity.getId(),
-                        TimelineItemType.TRANSPORT, entity.getStartDateTime()));
+                        TimelineItemType.TRANSPORT, time));
 
         return timelineMapper.toTimelineItemDto(entity);
     }
@@ -216,11 +219,6 @@ public class ItineraryServiceImpl implements ItineraryService {
     @Override
     public TimelineItemDto updateFlight(Long userId, Long tripId, Long id,
                                         CreateFlightRequest dto) {
-        Trip trip = tripService.getTripClassById(userId, tripId);
-        if(datesOutsideTripRange(trip, dto.startDateTime(), dto.endDateTime())) {
-            throw new BadRequestException("Item dates must be within trip dates");
-        }
-
         Flight entity = (Flight) itineraryItemRepository
                 .findByIdAndUserIdAndTripIdOptional(id, userId, tripId)
                 .orElseThrow(() -> new NotFoundException("Item not found"));
@@ -234,9 +232,12 @@ public class ItineraryServiceImpl implements ItineraryService {
 
         itineraryItemRepository.persistAndFlush(entity);
 
+        ZoneId zone = ZoneId.of(entity.getDepartureAirport().getPlace().getTimezoneId());
+        Instant time = eventZonedTime(zone, entity.getStartDateTime());
+
         notificationService.scheduleNotifications(
                 new NotificationDto(userId, tripId, entity.getId(),
-                        TimelineItemType.FLIGHT, entity.getStartDateTime()));
+                        TimelineItemType.FLIGHT, time));
         return timelineMapper.toTimelineItemDto(entity);
     }
 
@@ -244,11 +245,6 @@ public class ItineraryServiceImpl implements ItineraryService {
     @Override
     public TimelineItemDto updateAccommodation(Long userId, Long tripId, Long id,
                                                CreateAccommodationRequest dto) {
-        Trip trip = tripService.getTripClassById(userId, tripId);
-        if(datesOutsideTripRange(trip, dto.startDateTime(), dto.endDateTime())) {
-            throw new BadRequestException("Item dates must be within trip dates");
-        }
-
         Accommodation entity = (Accommodation) itineraryItemRepository
                 .findByIdAndUserIdAndTripIdOptional(id, userId, tripId)
                 .orElseThrow(() -> new NotFoundException("Item not found"));
@@ -258,9 +254,12 @@ public class ItineraryServiceImpl implements ItineraryService {
 
         itineraryItemRepository.persistAndFlush(entity);
 
+        ZoneId zone = ZoneId.of(entity.getLocation().getTimezoneId());
+        Instant time = eventZonedTime(zone, entity.getStartDateTime());
+
         notificationService.rescheduleNotifications(
                 new NotificationDto(userId, tripId, entity.getId(),
-                        TimelineItemType.ACCOMMODATION, entity.getStartDateTime()));
+                        TimelineItemType.ACCOMMODATION, time));
 
         return timelineMapper.toTimelineItemDto(entity);
     }
@@ -269,11 +268,6 @@ public class ItineraryServiceImpl implements ItineraryService {
     @Override
     public TimelineItemDto updateActivity(Long userId, Long tripId, Long id,
                                           CreateActivityRequest dto) {
-        Trip trip = tripService.getTripClassById(userId, tripId);
-        if(datesOutsideTripRange(trip, dto.startDateTime(), dto.endDateTime())) {
-            throw new BadRequestException("Item dates must be within trip dates");
-        }
-
         Activity entity = (Activity) itineraryItemRepository
                 .findByIdAndUserIdAndTripIdOptional(id, userId, tripId)
                 .orElseThrow(() -> new NotFoundException("Item not found"));
@@ -283,9 +277,12 @@ public class ItineraryServiceImpl implements ItineraryService {
 
         itineraryItemRepository.persistAndFlush(entity);
 
+        ZoneId zone = ZoneId.of(entity.getLocation().getTimezoneId());
+        Instant time = eventZonedTime(zone, entity.getStartDateTime());
+
         notificationService.scheduleNotifications(
                 new NotificationDto(userId, tripId, entity.getId(),
-                        TimelineItemType.ACTIVITY, entity.getStartDateTime()));
+                        TimelineItemType.ACTIVITY, time));
 
         return timelineMapper.toTimelineItemDto(entity);
     }
@@ -342,10 +339,10 @@ public class ItineraryServiceImpl implements ItineraryService {
     }
 
     @Override
-    public ReportDto getReport(Long userId, Long tripId) {
+    public SummaryDto getSummary(Long userId, Long tripId) {
         Trip trip = tripService.getTripClassById(userId, tripId);
         List<FullItineraryItemDto> items = getFullItineraryItemsByTripId(tripId);
-        return new ReportDto(
+        return new SummaryDto(
                 tripMapper.toTripTimelineDto(trip),
                 items
         );
@@ -387,7 +384,4 @@ public class ItineraryServiceImpl implements ItineraryService {
         }
         return dtoList;
     }
-
-
-
 }

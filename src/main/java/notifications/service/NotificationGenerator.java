@@ -10,12 +10,9 @@ import notifications.entity.NotificationRule;
 import notifications.entity.NotificationStatus;
 import notifications.repository.NotificationRepository;
 import notifications.repository.NotificationRuleRepository;
-//import notifications.repository.NotificationJobRepository;
-//import notifications.repository.NotificationRuleRepository;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
@@ -43,8 +40,8 @@ public class NotificationGenerator {
 
         if (rule.isEnabled()) {
             persist(dto, sendAt, ChannelType.EMAIL);
-            persist(dto, sendAt, ChannelType.PUSH);
-            persist(dto, sendAt, ChannelType.IN_APP);
+ //           persist(dto, sendAt, ChannelType.PUSH);
+ //           persist(dto, sendAt, ChannelType.IN_APP);
         }
     }
 

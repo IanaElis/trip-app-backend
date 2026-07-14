@@ -22,15 +22,12 @@ import java.time.Duration;
 @Produces(MediaType.APPLICATION_JSON)
 @PermitAll
 public class UserController {
-
     @Inject
     AuthenticationService authService;
     @Inject
     CookieService cookieService;
     @Inject
     JsonWebToken jwt;
-    @Inject
-    SecurityIdentity securityIdentity;
 
     private static final Duration ACCESS_TTL = Duration.ofMinutes(15);
     private static final Duration REFRESH_TTL = Duration.ofDays(14);
@@ -67,7 +64,6 @@ public class UserController {
         if(refreshToken == null) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
-
         TokenPair tokens = authService.refresh(refreshToken);
         NewCookie cookie = cookieService
                 .createCookie(ACCESS_TOKEN_NAME, tokens.accessToken(), (int)ACCESS_TTL.toSeconds());
