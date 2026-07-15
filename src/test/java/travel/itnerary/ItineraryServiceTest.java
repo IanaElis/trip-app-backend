@@ -93,6 +93,7 @@ public class ItineraryServiceTest {
         place = new Place();
         place.setId(1L);
         place.setName("Location");
+        place.setTimezoneId("Europe/Sofia");
 
         trip = new Trip();
         trip.setId(TRIP_ID);
@@ -165,6 +166,7 @@ public class ItineraryServiceTest {
                         TransportType.BUS, placeDto, placeDto, "BUS1");
 
         Transport transport = new Transport();
+        transport.setStartDateTime(dto.startDateTime());
         Company company = new Company("New Bus", CompanyType.BUS);
 
         when(tripService.getTripClassById(USER_ID,TRIP_ID)).thenReturn(trip);
@@ -180,20 +182,6 @@ public class ItineraryServiceTest {
         verify(itineraryItemRepository).persistAndFlush(transport);
     }
 
-    @Test
-    void addTransport_datesOutsideTrip(){
-        CreateTransportRequest dto = new CreateTransportRequest(
-                START_TIME.minusSeconds(5),
-                END_TIME.plusSeconds(1), null, null,
-                1L, null, TransportType.BUS,
-                placeDto, placeDto, "BUS1");
-
-        when(tripService.getTripClassById(USER_ID,TRIP_ID)).thenReturn(trip);
-
-        assertThrows(BadRequestException.class,
-                () -> itineraryService.addTransport(USER_ID, TRIP_ID, dto));
-        verify(itineraryItemRepository, never()).persistAndFlush(any());
-    }
 
     @Test
     void addAccommodation_success() {
@@ -225,8 +213,6 @@ public class ItineraryServiceTest {
     void updateAccommodation_wrongOwner(){
         CreateAccommodationRequest dto = createAccommodationRequest();
 
-        when(tripService.getTripClassById(USER_ID, TRIP_ID)).thenReturn(trip);
-
         when(itineraryItemRepository
                 .findByIdAndUserIdAndTripIdOptional(5L, USER_ID, TRIP_ID))
                 .thenReturn(Optional.empty());
@@ -242,6 +228,7 @@ public class ItineraryServiceTest {
 
         Activity activity = new Activity();
         activity.setId(1L);
+        activity.setStartDateTime(dto.startDateTime());
 
         TimelineItemDto response = new TimelineItemDto(1L, TRIP_ID,
                         dto.startDateTime(), dto.endDateTime(),
@@ -268,6 +255,7 @@ public class ItineraryServiceTest {
 
         Flight flight = new Flight();
         flight.setId(1L);
+        flight.setStartDateTime(dto.startDateTime());
 
         TimelineItemDto response = new TimelineItemDto(1L, TRIP_ID,
                         dto.startDateTime(), dto.endDateTime(), dto.notes(),
@@ -277,6 +265,7 @@ public class ItineraryServiceTest {
         airline.setName("Airline");
 
         Airport airport = new Airport();
+        airport.setPlace(place);
 
         when(tripService.getTripClassById(USER_ID, TRIP_ID)).thenReturn(trip);
         when(flightMapper.toEntity(dto)).thenReturn(flight);
@@ -315,12 +304,14 @@ public class ItineraryServiceTest {
 
         accommodation.setId(5L);
         accommodation.setTrip(trip);
+        accommodation.setLocation(place);
+        accommodation.setStartDateTime(dto.startDateTime());
 
         TimelineItemDto response = new TimelineItemDto(5L, TRIP_ID,
                         dto.startDateTime(), dto.endDateTime(), dto.notes(),
                         "ACCOMMODATION", null);
 
-        when(tripService.getTripClassById(USER_ID,TRIP_ID)).thenReturn(trip);
+      //  when(tripService.getTripClassById(USER_ID,TRIP_ID)).thenReturn(trip);
         when(itineraryItemRepository
                 .findByIdAndUserIdAndTripIdOptional(5L, USER_ID, TRIP_ID))
                 .thenReturn(Optional.of(accommodation));

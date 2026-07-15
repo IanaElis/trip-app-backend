@@ -16,8 +16,6 @@ import travel.itinerary.dto.timeline.FullItineraryDto;
 import travel.itinerary.dto.timeline.TimelineItemDto;
 import travel.itinerary.service.ItineraryService;
 
-import java.net.URI;
-
 @Path("/trips/{trip_id}")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)

@@ -1,6 +1,7 @@
 package notifications.service;
 
 import io.quarkus.scheduler.Scheduled;
+import io.smallrye.common.annotation.Blocking;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -23,6 +24,7 @@ public class NotificationDispatcher {
     NotificationSenderFactory senderFactory;
 
     @Scheduled(every = "1m")
+    @Blocking
     void dispatch() {
         List<Notification> notifications = repository.findPendingJobsAt(Instant.now());
 

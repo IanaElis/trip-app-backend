@@ -89,12 +89,9 @@ public class ItineraryServiceImpl implements ItineraryService {
 
         itineraryItemRepository.persistAndFlush(transport);
 
-        ZoneId zone = ZoneId.of(transport.getDepartureLocation().getTimezoneId());
-        Instant time = eventZonedTime(zone, transport.getStartDateTime());
-
         notificationService.scheduleNotifications(
                 new NotificationDto(userId, tripId, transport.getId(),
-                        TimelineItemType.TRANSPORT, time));
+                        TimelineItemType.TRANSPORT, transport.getStartDateTime()));
 
         return timelineMapper.toTimelineItemDto(transport);
     }
@@ -114,7 +111,7 @@ public class ItineraryServiceImpl implements ItineraryService {
           depatureAirport = mapService
                     .getAirportByNameAndUpdate(dto.departureAirport());
         }
-        if(dto.departureAirport() != null) {
+        if(dto.arrivalAirport() != null) {
             arrivalAirport = mapService
                     .getAirportByNameAndUpdate(dto.arrivalAirport());
         }
@@ -123,12 +120,9 @@ public class ItineraryServiceImpl implements ItineraryService {
 
         itineraryItemRepository.persistAndFlush(flight);
 
-        ZoneId zone = ZoneId.of(flight.getDepartureAirport().getPlace().getTimezoneId());
-        Instant time = eventZonedTime(zone, flight.getStartDateTime());
-
         notificationService.scheduleNotifications(
                 new NotificationDto(userId, tripId, flight.getId(),
-                        TimelineItemType.FLIGHT, time));
+                        TimelineItemType.FLIGHT, flight.getStartDateTime()));
         return timelineMapper.toTimelineItemDto(flight);
     }
 
@@ -144,12 +138,9 @@ public class ItineraryServiceImpl implements ItineraryService {
 
         itineraryItemRepository.persistAndFlush(accommodation);
 
-        ZoneId zone = ZoneId.of(accommodation.getLocation().getTimezoneId());
-        Instant time = eventZonedTime(zone, accommodation.getStartDateTime());
-
         notificationService.scheduleNotifications(
                 new NotificationDto(userId, tripId, accommodation.getId(),
-                        TimelineItemType.ACCOMMODATION, time));
+                        TimelineItemType.ACCOMMODATION, accommodation.getStartDateTime()));
 
         return timelineMapper.toTimelineItemDto(accommodation);
     }
@@ -166,12 +157,9 @@ public class ItineraryServiceImpl implements ItineraryService {
 
         itineraryItemRepository.persistAndFlush(activity);
 
-        ZoneId zone = ZoneId.of(activity.getLocation().getTimezoneId());
-        Instant time = eventZonedTime(zone, activity.getStartDateTime());
-
         notificationService.scheduleNotifications(
                 new NotificationDto(userId, tripId, activity.getId(),
-                        TimelineItemType.ACTIVITY, time));
+                        TimelineItemType.ACTIVITY, activity.getStartDateTime()));
         return timelineMapper.toTimelineItemDto(activity);
     }
 
@@ -193,7 +181,7 @@ public class ItineraryServiceImpl implements ItineraryService {
             entity.setCompany(company);
 
         }
-        else if(!dto.companyId().equals(id)) {
+        else if(!dto.companyId().equals(entity.getCompany().getId())) {
             Company newCompany = carrierService.getCompany(dto.companyId());
             if(newCompany == null) {
                 throw new NotFoundException("Company not found");
@@ -205,12 +193,9 @@ public class ItineraryServiceImpl implements ItineraryService {
 
         itineraryItemRepository.persistAndFlush(entity);
 
-        ZoneId zone = ZoneId.of(entity.getDepartureLocation().getTimezoneId());
-        Instant time = eventZonedTime(zone, entity.getStartDateTime());
-
         notificationService.rescheduleNotifications(
                 new NotificationDto(userId, tripId, entity.getId(),
-                        TimelineItemType.TRANSPORT, time));
+                        TimelineItemType.TRANSPORT, entity.getStartDateTime()));
 
         return timelineMapper.toTimelineItemDto(entity);
     }
@@ -232,12 +217,9 @@ public class ItineraryServiceImpl implements ItineraryService {
 
         itineraryItemRepository.persistAndFlush(entity);
 
-        ZoneId zone = ZoneId.of(entity.getDepartureAirport().getPlace().getTimezoneId());
-        Instant time = eventZonedTime(zone, entity.getStartDateTime());
-
-        notificationService.scheduleNotifications(
+        notificationService.rescheduleNotifications(
                 new NotificationDto(userId, tripId, entity.getId(),
-                        TimelineItemType.FLIGHT, time));
+                        TimelineItemType.FLIGHT, entity.getStartDateTime()));
         return timelineMapper.toTimelineItemDto(entity);
     }
 
@@ -254,12 +236,9 @@ public class ItineraryServiceImpl implements ItineraryService {
 
         itineraryItemRepository.persistAndFlush(entity);
 
-        ZoneId zone = ZoneId.of(entity.getLocation().getTimezoneId());
-        Instant time = eventZonedTime(zone, entity.getStartDateTime());
-
         notificationService.rescheduleNotifications(
                 new NotificationDto(userId, tripId, entity.getId(),
-                        TimelineItemType.ACCOMMODATION, time));
+                        TimelineItemType.ACCOMMODATION, entity.getStartDateTime()));
 
         return timelineMapper.toTimelineItemDto(entity);
     }
@@ -277,12 +256,9 @@ public class ItineraryServiceImpl implements ItineraryService {
 
         itineraryItemRepository.persistAndFlush(entity);
 
-        ZoneId zone = ZoneId.of(entity.getLocation().getTimezoneId());
-        Instant time = eventZonedTime(zone, entity.getStartDateTime());
-
-        notificationService.scheduleNotifications(
+        notificationService.rescheduleNotifications(
                 new NotificationDto(userId, tripId, entity.getId(),
-                        TimelineItemType.ACTIVITY, time));
+                        TimelineItemType.ACTIVITY, entity.getStartDateTime()));
 
         return timelineMapper.toTimelineItemDto(entity);
     }

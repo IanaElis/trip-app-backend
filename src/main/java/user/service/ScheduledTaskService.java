@@ -17,5 +17,3 @@ public class ScheduledTaskService {
         tokenRepository.deleteExpiredTokens();
     }
 }
-//  if (deleted > 0) {
-// log.infof("Deleted %d expired password reset tokens.", deleted);
