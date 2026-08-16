@@ -5,6 +5,7 @@ import io.quarkus.security.ForbiddenException;
 import io.quarkus.security.UnauthorizedException;
 import jakarta.persistence.EntityExistsException;
 import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.ClientErrorException;
 import notifications.service.EmailService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -117,7 +118,7 @@ public class AuthenticationServiceTest {
     void register_emailAlreadyExists() {
         when(userRepository.existsByEmail(any())).thenReturn(true);
 
-        assertThrows(EntityExistsException.class, () -> authService.register(
+        assertThrows(ClientErrorException.class, () -> authService.register(
                 new RegisterDto("user@test.com", "password123", "username")));
 
         verify(userRepository, never()).persistAndFlush(any());
